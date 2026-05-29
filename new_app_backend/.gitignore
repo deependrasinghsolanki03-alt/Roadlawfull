@@ -1,0 +1,26 @@
+# Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary or backup files
+ss2_OLD_BACKUP.py
+
+# Ignore legal PDFs since we fetch/parse them, but keep the folder
+legal_pdfs/*
+!legal_pdfs/.gitkeep

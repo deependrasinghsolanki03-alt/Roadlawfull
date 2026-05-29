@@ -1,0 +1,21 @@
+# Exclude non-project folders
+Documentation/
+backups_*/
+.venv/
+.gradle/
+.code-review-graph/
+
+# Build outputs
+build/
+app/build/
+
+# Sensitive files
+new_app_backend/.env
+challan/.env
+*.pyc
+__pycache__/
+
+# IDE
+.idea/
+*.iml
+local.properties

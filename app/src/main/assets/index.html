@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>DriveLegal - Smart Road Safety</title>
+<script src="./css/tailwind.js"></script>
+<link href="./css/plus_jakarta_sans.css" rel="stylesheet"/>
+<link href="./css/material_symbols.css" rel="stylesheet"/>
+<script src="./js/supabase.js"></script>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "on-tertiary-fixed-variant": "#891933",
+                    "inverse-on-surface": "#283044",
+                    "on-tertiary-container": "#750626",
+                    "on-background": "#dae2fd",
+                    "surface-container-highest": "#2d3449",
+                    "on-tertiary-fixed": "#400010",
+                    "on-surface": "#dae2fd",
+                    "surface": "#0b1326",
+                    "secondary-container": "#e3aa00",
+                    "primary-container": "#60a5fa",
+                    "surface-bright": "#31394d",
+                    "on-secondary-container": "#5a4100",
+                    "secondary-fixed": "#ffdf9f",
+                    "on-primary-container": "#003a6b",
+                    "surface-container-low": "#131b2e",
+                    "primary": "#a4c9ff",
+                    "on-secondary": "#402d00",
+                    "tertiary-container": "#ff778a",
+                    "surface-dim": "#0b1326",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#67001f",
+                    "primary-fixed-dim": "#a4c9ff",
+                    "outline-variant": "#414751",
+                    "primary-fixed": "#d4e3ff",
+                    "on-surface-variant": "#c1c7d3",
+                    "on-error-container": "#ffdad6",
+                    "tertiary": "#ffb2b9",
+                    "surface-variant": "#2d3449",
+                    "outline": "#8b919d",
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#ffdadc",
+                    "on-secondary-fixed-variant": "#5c4300",
+                    "inverse-surface": "#dae2fd",
+                    "surface-container-lowest": "#060e20",
+                    "surface-container-high": "#222a3d",
+                    "secondary-fixed-dim": "#f9bd22",
+                    "on-error": "#690005",
+                    "inverse-primary": "#0060ac",
+                    "on-primary-fixed": "#001c39",
+                    "surface-container": "#171f33",
+                    "on-secondary-fixed": "#261a00",
+                    "tertiary-fixed-dim": "#ffb2b9",
+                    "secondary": "#ffc640",
+                    "background": "#0b1326",
+                    "on-primary-fixed-variant": "#004883",
+                    "on-primary": "#00315d",
+                    "surface-tint": "#a4c9ff"
+                },
+                "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+                },
+                "spacing": {
+                    "unit": "4px",
+                    "margin-mobile": "20px",
+                    "margin-desktop": "40px",
+                    "gutter": "16px",
+                    "container-max": "1200px"
+                },
+                "fontFamily": {
+                    "title-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"]
+                },
+                "fontSize": {
+                    "title-lg": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                    "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                    "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                    "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                    "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                    "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                    "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                    "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "700" }]
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body {
+        background-color: #0b1326;
+        color: #dae2fd;
+        -webkit-font-smoothing: antialiased;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .glass-panel {
+        background: rgba(34, 42, 61, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .glow-amber { box-shadow: 0 0 20px rgba(227, 170, 0, 0.15); }
+
+    /* Splash / Loading Screen */
+    #app-splash {
+      position: fixed; inset: 0; z-index: 99999;
+      background: #0b1326;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    #app-splash.splash-hide {
+      opacity: 0; transform: scale(1.08);
+      pointer-events: none;
+    }
+    #app-splash .splash-logo {
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #60a5fa 0%, #a4c9ff 50%, #ffc640 100%);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 0 60px rgba(96,165,250,0.4), 0 0 120px rgba(255,198,64,0.2);
+      animation: splashPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes splashPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(96,165,250,0.4), 0 0 120px rgba(255,198,64,0.2); }
+      50% { transform: scale(1.1); box-shadow: 0 0 80px rgba(96,165,250,0.6), 0 0 160px rgba(255,198,64,0.35); }
+    }
+    #app-splash .splash-bar-track {
+      width: 180px; height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden; margin-top: 20px;
+    }
+    #app-splash .splash-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #60a5fa, #ffc640);
+      border-radius: 4px;
+      animation: splashLoad 2s ease-in-out forwards;
+    }
+    @keyframes splashLoad {
+      0% { width: 0%; }
+      60% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    /* Page transitions */
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Auth Gate */
+    #auth-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0b1326;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    #auth-gate.hidden-gate {
+      opacity: 0; transform: scale(1.05);
+      pointer-events: none;
+    }
+    #auth-gate .auth-logo {
+      width: 88px; height: 88px;
+      border-radius: 50%; 
+      background: linear-gradient(135deg, #60a5fa 0%, #a4c9ff 50%, #ffc640 100%);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 28px;
+      box-shadow: 0 0 48px rgba(96, 165, 250, 0.3), 0 0 96px rgba(255, 198, 64, 0.15);
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 0 48px rgba(96,165,250,0.3), 0 0 96px rgba(255,198,64,0.15); transform: scale(1); }
+      50% { box-shadow: 0 0 64px rgba(96,165,250,0.5), 0 0 120px rgba(255,198,64,0.25); transform: scale(1.05); }
+    }
+    #auth-gate .gate-input {
+      width: 100%; max-width: 320px;
+      padding: 14px 16px 14px 44px;
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(34,42,61,0.8); color: #dae2fd;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px;
+      outline: none; transition: border-color 0.2s;
+    }
+    #auth-gate .gate-input:focus { border-color: rgba(164,201,255,0.5); }
+    #auth-gate .gate-input::placeholder { color: rgba(218,226,253,0.3); }
+    #auth-gate .gate-btn {
+      width: 100%; max-width: 320px;
+      padding: 14px; border-radius: 12px; border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    #auth-gate .gate-btn:active { transform: scale(0.97); }
+    #auth-gate .gate-btn-primary { background: #a4c9ff; color: #00315d; }
+    #auth-gate .gate-btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #dae2fd; }
+    #auth-gate .gate-btn-amber { background: rgba(255,198,64,0.15); border: 1px solid rgba(255,198,64,0.3); color: #ffc640; }
+    #auth-gate .gate-btn-amber-solid { background: #ffc640; color: #402d00; }
+    #auth-gate .auth-footer {
+      position: absolute; bottom: 32px;
+      font-size: 12px; color: rgba(218,226,253,0.3);
+      text-align: center;
+    }
+    .auth-spinner {
+      width: 24px; height: 24px;
+      border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: #ffc640;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body class="pb-[100px]">
+
+<!-- ═══════════════════ SPLASH LOADING SCREEN ═══════════════════ -->
+<div id="app-splash">
+  <div class="splash-logo">
+    <span class="material-symbols-outlined text-[48px] text-[#0b1326]" style="font-variation-settings: 'FILL' 1;">shield</span>
+  </div>
+  <h1 style="font-family: 'Plus Jakarta Sans'; font-size: 28px; font-weight: 800; color: #ffc640; margin: 0;">DriveLegal</h1>
+  <p style="font-family: 'Plus Jakarta Sans'; font-size: 13px; color: rgba(218,226,253,0.4); margin-top: 6px;">Smart Road Safety Assistant</p>
+  <div class="splash-bar-track">
+    <div class="splash-bar-fill"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ AUTH GATE ═══════════════════ -->
+<div id="auth-gate" style="display:none;">
+  <div class="auth-logo">
+    <span class="material-symbols-outlined text-[44px] text-[#0b1326]" style="font-variation-settings: 'FILL' 1;">shield</span>
+  </div>
+  <h1 style="font-family: 'Plus Jakarta Sans'; font-size: 32px; font-weight: 800; color: #ffc640; margin-bottom: 8px;">DriveLegal</h1>
+  <p style="font-family: 'Plus Jakarta Sans'; font-size: 14px; color: rgba(218,226,253,0.5); margin-bottom: 28px;">Smart Road Safety Assistant</p>
+
+  <!-- Error/Success Messages -->
+  <div id="gate-error" style="display:none; max-width:320px; width:100%; margin-bottom:12px; padding:10px 14px; border-radius:12px; background:rgba(147,0,10,0.2); border:1px solid rgba(255,180,171,0.3);">
+    <span id="gate-error-text" style="font-size:13px; color:#ffb4ab;"></span>
+  </div>
+  <div id="gate-success" style="display:none; max-width:320px; width:100%; margin-bottom:12px; padding:10px 14px; border-radius:12px; background:rgba(164,201,255,0.1); border:1px solid rgba(164,201,255,0.3);">
+    <span id="gate-success-text" style="font-size:13px; color:#a4c9ff;"></span>
+  </div>
+
+  <!-- Email Input -->
+  <div style="position:relative; max-width:320px; width:100%; margin-bottom:10px;">
+    <span class="material-symbols-outlined" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:rgba(218,226,253,0.4); font-size:20px;">mail</span>
+    <input id="gate-email" type="email" placeholder="Email address" class="gate-input">
+  </div>
+
+  <!-- Password Input -->
+  <div id="gate-pw-section" style="position:relative; max-width:320px; width:100%; margin-bottom:16px;">
+    <span class="material-symbols-outlined" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:rgba(218,226,253,0.4); font-size:20px;">lock</span>
+    <input id="gate-password" type="password" placeholder="Password (min 6 chars)" class="gate-input">
+  </div>
+
+  <!-- Login / Signup Buttons -->
+  <button id="gate-btn-login" onclick="gateLogin()" class="gate-btn gate-btn-primary" style="margin-bottom:8px;">Login</button>
+  <button id="gate-btn-signup" onclick="gateSignup()" class="gate-btn gate-btn-outline" style="margin-bottom:16px;">Create Account</button>
+
+  <!-- Divider -->
+  <div style="display:flex; align-items:center; gap:12px; max-width:320px; width:100%; margin-bottom:16px;">
+    <div style="flex:1; height:1px; background:rgba(255,255,255,0.1);"></div>
+    <span style="font-size:11px; color:rgba(218,226,253,0.3); text-transform:uppercase; letter-spacing:1px;">or use OTP</span>
+    <div style="flex:1; height:1px; background:rgba(255,255,255,0.1);"></div>
+  </div>
+
+  <!-- Send OTP -->
+  <button id="gate-btn-otp" onclick="gateSendOTP()" class="gate-btn gate-btn-amber" style="margin-bottom:12px;">Send OTP to Email</button>
+
+  <!-- OTP Verify (hidden) -->
+  <div id="gate-otp-section" style="display:none; max-width:320px; width:100%;">
+    <div style="position:relative; margin-bottom:10px;">
+      <span class="material-symbols-outlined" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:rgba(218,226,253,0.4); font-size:20px;">pin</span>
+      <input id="gate-otp" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP" class="gate-input" style="text-align:center; letter-spacing:0.5em; font-weight:bold;">
+    </div>
+    <button id="gate-btn-verify" onclick="gateVerifyOTP()" class="gate-btn gate-btn-amber-solid">Verify OTP</button>
+  </div>
+
+  <!-- Loading -->
+  <div id="gate-loading" style="display:none; margin-top:16px;"><div class="auth-spinner"></div></div>
+
+  <div class="auth-footer">By continuing, you agree to our Terms of Service<br>& Privacy Policy</div>
+</div>
+
+<!-- ═══════════════════ TOP APP BAR ═══════════════════ -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-margin-mobile py-unit w-full max-w-container-max mx-auto bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-sm shadow-primary/5">
+  <div class="flex items-center gap-3">
+    <a href="javascript:void(0)" id="btn-profile-avatar" onclick="switchPage('page-profile'); return false;" style="position:relative; z-index:100; display:flex; width:44px; height:44px; min-width:44px; min-height:44px; -webkit-tap-highlight-color: rgba(164,201,255,0.4); touch-action:manipulation;" class="rounded-full bg-surface-container-highest border-2 border-primary/30 items-center justify-center hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-lg shadow-primary/20">
+      <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: 'FILL' 1; pointer-events:none;">person</span>
+    </a>
+    <div>
+      <h1 class="font-title-lg text-title-lg font-black tracking-tight text-primary">Hello, Driver</h1>
+      <div class="flex items-center gap-1 text-secondary font-label-sm text-label-sm">
+        <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+        <span id="streak-display">Safe Driving Mode</span>
+      </div>
+    </div>
+  </div>
+  <button class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container hover:bg-surface-bright transition-colors active:scale-95 duration-200 text-primary relative">
+    <span class="material-symbols-outlined text-primary">notifications</span>
+    <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+  </button>
+</header>
+
+<!-- ═══════════════════ DASHBOARD PAGE ═══════════════════ -->
+<main id="page-home" class="page active max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-8">
+
+  <!-- Hero Card with GPS -->
+  <section class="relative overflow-hidden rounded-xl bg-surface-container-high border border-white/5 shadow-lg glow-amber p-6">
+    <div class="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent pointer-events-none"></div>
+    <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
+      
+      <!-- GPS Location Card -->
+      <div class="w-full md:w-1/3 aspect-[4/3] rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-lowest border border-white/10 p-4 flex flex-col justify-between relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
+        <div class="flex justify-between items-start z-10">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <span class="font-label-sm text-label-sm text-emerald-400 tracking-wide uppercase">GPS Active</span>
+          </div>
+          <span class="material-symbols-outlined text-primary text-[20px] animate-pulse">my_location</span>
+        </div>
+        <div class="space-y-1 z-10">
+          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Current Location</p>
+          <h3 id="geo-location-display" class="font-title-lg text-title-lg text-on-surface font-extrabold">Detecting...</h3>
+          <p id="geo-state-display" class="font-label-sm text-[12px] text-primary/80 font-mono tracking-tight">State: --</p>
+        </div>
+        <div class="bg-surface-container-high/60 backdrop-blur-md rounded-lg p-2.5 border border-white/5 z-10">
+          <div class="flex items-center justify-between text-[11px] font-label-sm text-on-surface-variant">
+            <span>Country: <span id="geo-country" class="text-primary font-bold">India</span></span>
+            <span>Status: <span class="text-emerald-400 font-bold">Online</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Text -->
+      <div class="flex-1 space-y-3">
+        <div class="inline-flex items-center gap-1.5 bg-secondary-container/20 text-secondary px-3 py-1 rounded-full font-label-sm text-label-sm mb-2">
+          <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+          AI-Powered Safety
+        </div>
+        <h2 class="font-display-lg text-[28px] md:text-display-lg text-on-surface">Drive Smarter. Stay Legal. Stay Safe.</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-lg">AI-powered traffic law guidance and challan prevention assistant.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Status Dashboard -->
+  <section class="grid grid-cols-3 gap-3">
+    <div class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center text-center gap-2">
+      <span class="material-symbols-outlined text-primary mb-1">location_on</span>
+      <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Location</span>
+      <span id="quick-location" class="font-title-lg text-[16px] text-on-surface">--</span>
+    </div>
+    <div class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center text-center gap-2 relative overflow-hidden">
+      <div class="absolute inset-0 bg-primary/5"></div>
+      <span class="material-symbols-outlined text-secondary mb-1" style="font-variation-settings: 'FILL' 1;">radar</span>
+      <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status</span>
+      <span id="server-status" class="font-title-lg text-[16px] text-secondary">Checking...</span>
+    </div>
+    <div class="glass-panel p-4 rounded-xl flex flex-col items-center justify-center text-center gap-2">
+      <div class="w-8 h-8 rounded-full border-2 border-primary border-t-secondary flex items-center justify-center mb-1">
+        <span class="font-label-lg text-label-lg text-primary">87</span>
+      </div>
+      <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Safety Score</span>
+      <span class="font-title-lg text-[16px] text-on-surface">Good</span>
+    </div>
+  </section>
+
+  <!-- Quick Actions Grid -->
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-title-lg text-title-lg text-on-surface">Quick Actions</h3>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      
+      <!-- Legal Search -->
+      <button onclick="switchPage('page-search')" class="glass-panel p-4 rounded-xl flex flex-col items-start gap-3 hover:bg-surface-bright transition-colors active:scale-95 text-left border border-white/5">
+        <div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center text-secondary">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">search</span>
+        </div>
+        <div>
+          <div class="font-label-lg text-label-lg text-on-surface mb-1">Legal Search</div>
+          <div class="font-label-sm text-label-sm text-on-surface-variant font-normal">Find traffic laws</div>
+        </div>
+      </button>
+
+      <!-- Challan Calc -->
+      <button onclick="switchPage('page-challan')" class="glass-panel p-4 rounded-xl flex flex-col items-start gap-3 hover:bg-surface-bright transition-colors active:scale-95 text-left border border-white/5">
+        <div class="w-10 h-10 rounded-lg bg-error-container/20 flex items-center justify-center text-error">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+        </div>
+        <div>
+          <div class="font-label-lg text-label-lg text-on-surface mb-1">Challan Calc</div>
+          <div class="font-label-sm text-label-sm text-on-surface-variant font-normal">Estimate fines</div>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- Suggested Queries -->
+  <section>
+    <div class="flex items-center gap-2 mb-3">
+      <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-wider">Suggested Queries</h3>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="quickSearch('helmet rules in MP')" class="px-4 py-2 rounded-full bg-surface-container border border-white/5 text-on-surface font-label-sm text-label-sm font-normal hover:bg-surface-bright transition-colors active:scale-95 flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[14px] text-primary">search</span>
+        Check MP helmet rules
+      </button>
+      <button onclick="quickChallan('bina helmet fine')" class="px-4 py-2 rounded-full bg-surface-container border border-white/5 text-on-surface font-label-sm text-label-sm font-normal hover:bg-surface-bright transition-colors active:scale-95 flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[14px] text-secondary">calculate</span>
+        Calculate your challan
+      </button>
+      <button onclick="quickSearch('parking fines in Delhi')" class="px-4 py-2 rounded-full bg-surface-container border border-white/5 text-on-surface font-label-sm text-label-sm font-normal hover:bg-surface-bright transition-colors active:scale-95 flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[14px] text-tertiary-container">local_parking</span>
+        Parking fines in Delhi
+      </button>
+    </div>
+  </section>
+
+  <!-- Learn & Earn -->
+  <section class="overflow-hidden -mx-margin-mobile px-margin-mobile">
+    <h3 class="font-title-lg text-title-lg text-on-surface mb-4">Learn & Earn</h3>
+    <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x">
+      <div class="w-64 flex-shrink-0 snap-start glass-panel rounded-xl border border-white/5 p-4 flex flex-col relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-bl-full -z-10 group-hover:bg-primary/20 transition-colors"></div>
+        <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary mb-3">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sports_motorsports</span>
+        </div>
+        <h4 class="font-label-lg text-label-lg text-on-surface mb-1">Helmet Safety</h4>
+        <p class="font-body-md text-[13px] leading-tight text-on-surface-variant flex-1 mb-4">Understand the new ISI mark regulations and pillion rider rules.</p>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-secondary font-label-sm text-label-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">toll</span> +50 XP
+          </span>
+        </div>
+      </div>
+      <div class="w-64 flex-shrink-0 snap-start glass-panel rounded-xl border border-white/5 p-4 flex flex-col relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-secondary/10 rounded-bl-full -z-10 group-hover:bg-secondary/20 transition-colors"></div>
+        <div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mb-3">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_parking</span>
+        </div>
+        <h4 class="font-label-lg text-label-lg text-on-surface mb-1">Parking Rules</h4>
+        <p class="font-body-md text-[13px] leading-tight text-on-surface-variant flex-1 mb-4">Avoid towing zones and understand commercial area parking limits.</p>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-secondary font-label-sm text-label-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">toll</span> +30 XP
+          </span>
+        </div>
+      </div>
+      <div class="w-64 flex-shrink-0 snap-start glass-panel rounded-xl border border-white/5 p-4 flex flex-col relative overflow-hidden group">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-tertiary-container/10 rounded-bl-full -z-10 group-hover:bg-tertiary-container/20 transition-colors"></div>
+        <div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary-container mb-3">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+        </div>
+        <h4 class="font-label-lg text-label-lg text-on-surface mb-1">School Zones</h4>
+        <p class="font-body-md text-[13px] leading-tight text-on-surface-variant flex-1 mb-4">Speed limits and pedestrian priority rules near educational institutions.</p>
+        <div class="flex items-center justify-between mt-auto">
+          <span class="text-secondary font-label-sm text-label-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">toll</span> +40 XP
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ═══════════════════ LEGAL SEARCH PAGE ═══════════════════ -->
+<main id="page-search" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-2">
+    <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-2xl">menu_book</span>
+      <h2 class="font-title-lg text-title-lg text-on-surface">Legal Documents</h2>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="relative">
+    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+    <input id="pdf-search-input" type="text" placeholder="Search legal documents..." oninput="debouncePDFSearch()" class="w-full pl-12 pr-14 py-3.5 rounded-xl bg-surface-container-high border border-white/10 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all" />
+    <button onclick="searchPDFs()" class="absolute inset-y-1.5 right-1.5 w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-all shadow-md">
+      <span class="material-symbols-outlined text-[20px]">search</span>
+    </button>
+  </div>
+
+  <!-- State Filter Chips -->
+  <div class="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+    <button onclick="filterPDFState('')" id="pdf-chip-all" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-primary text-on-primary">All States</button>
+    <button onclick="filterPDFState('Madhya Pradesh')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">MP</button>
+    <button onclick="filterPDFState('Delhi')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">Delhi</button>
+    <button onclick="filterPDFState('Maharashtra')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">MH</button>
+    <button onclick="filterPDFState('Uttar Pradesh')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">UP</button>
+    <button onclick="filterPDFState('Karnataka')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">KA</button>
+    <button onclick="filterPDFState('Tamil Nadu')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">TN</button>
+    <button onclick="filterPDFState('Rajasthan')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">RJ</button>
+    <button onclick="filterPDFState('Gujarat')" class="pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant">GJ</button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="flex items-center justify-between px-1">
+    <span id="pdf-result-count" class="font-label-sm text-label-sm text-on-surface-variant">Loading documents...</span>
+    <div class="flex items-center gap-1 bg-surface-container-highest px-2.5 py-1 rounded-full">
+      <span class="material-symbols-outlined text-[14px] text-primary">cloud_done</span>
+      <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">Supabase</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="pdf-loading" class="hidden flex items-center justify-center gap-3 text-primary bg-primary/10 px-5 py-3 rounded-xl border border-primary/20 mx-auto w-fit">
+    <span class="material-symbols-outlined animate-spin text-primary text-[18px]">sync</span>
+    <span class="text-sm font-medium">Searching documents...</span>
+  </div>
+
+  <!-- PDF Results Grid -->
+  <div id="pdf-results" class="space-y-3">
+    <!-- Cards injected by JS -->
+  </div>
+
+  <!-- Empty State -->
+  <div id="pdf-empty" class="hidden flex flex-col items-center justify-center py-12 text-center">
+    <div class="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-4">
+      <span class="material-symbols-outlined text-[40px] text-on-surface-variant/50">folder_off</span>
+    </div>
+    <h3 class="font-title-lg text-title-lg text-on-surface-variant mb-1">No Documents Found</h3>
+    <p class="font-body-md text-body-md text-on-surface-variant/60 max-w-xs">Upload legal PDFs from the Admin panel to see them here.</p>
+  </div>
+
+</main>
+
+
+<!-- ═══════════════════ CHALLAN CALCULATOR PAGE ═══════════════════ -->
+<main id="page-challan" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-2">
+    <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-secondary text-2xl">receipt_long</span>
+      <h2 class="font-title-lg text-title-lg text-on-surface">Challan Calculator</h2>
+    </div>
+  </div>
+
+  <!-- AI Estimate Only (no tabs) -->
+  <div class="space-y-6">
+
+    <!-- Vehicle Type -->
+    <section class="space-y-3">
+      <h3 class="font-semibold text-sm text-on-surface-variant uppercase tracking-wider">Vehicle Type</h3>
+      <div class="grid grid-cols-3 gap-3">
+        <button id="ch-v-bike" onclick="chSelectVehicle('bike')" class="ch-vehicle-btn group active flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 active:scale-95 bg-primary/10 border-primary text-primary shadow-[0_0_12px_rgba(164,201,255,0.15)]">
+          <span class="material-symbols-outlined text-[28px]">two_wheeler</span>
+          <span class="font-semibold text-xs">Bike</span>
+        </button>
+        <button id="ch-v-car" onclick="chSelectVehicle('car')" class="ch-vehicle-btn group flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 active:scale-95 bg-surface-container border-white/5 text-on-surface-variant">
+          <span class="material-symbols-outlined text-[28px]">directions_car</span>
+          <span class="font-semibold text-xs">Car</span>
+        </button>
+        <button id="ch-v-truck" onclick="chSelectVehicle('truck')" class="ch-vehicle-btn group flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 active:scale-95 bg-surface-container border-white/5 text-on-surface-variant">
+          <span class="material-symbols-outlined text-[28px]">local_shipping</span>
+          <span class="font-semibold text-xs">Truck</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- State Selector -->
+    <section class="space-y-2">
+      <label class="text-[11px] text-on-surface-variant font-semibold uppercase">State</label>
+      <select id="ch-state" class="w-full bg-surface-container/60 border border-white/10 rounded-xl py-3 pl-3 pr-8 text-sm text-on-surface appearance-none focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none">
+        <option value="Andhra Pradesh">Andhra Pradesh</option><option value="Arunachal Pradesh">Arunachal Pradesh</option><option value="Assam">Assam</option><option value="Bihar">Bihar</option><option value="Chhattisgarh">Chhattisgarh</option><option value="Delhi">Delhi</option><option value="Goa">Goa</option><option value="Gujarat">Gujarat</option><option value="Haryana">Haryana</option><option value="Himachal Pradesh">Himachal Pradesh</option><option value="Jharkhand">Jharkhand</option><option value="Karnataka">Karnataka</option><option value="Kerala">Kerala</option><option value="Madhya Pradesh">Madhya Pradesh</option><option value="Maharashtra">Maharashtra</option><option value="Manipur">Manipur</option><option value="Meghalaya">Meghalaya</option><option value="Mizoram">Mizoram</option><option value="Nagaland">Nagaland</option><option value="Odisha">Odisha</option><option value="Punjab">Punjab</option><option value="Rajasthan">Rajasthan</option><option value="Sikkim">Sikkim</option><option value="Tamil Nadu">Tamil Nadu</option><option value="Telangana">Telangana</option><option value="Tripura">Tripura</option><option value="Uttar Pradesh">Uttar Pradesh</option><option value="Uttarakhand">Uttarakhand</option><option value="West Bengal">West Bengal</option>
+      </select>
+    </section>
+
+    <!-- AI Orb -->
+    <div class="flex flex-col items-center py-6">
+      <div class="relative w-28 h-28 mb-4 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full bg-secondary/15 blur-2xl animate-pulse"></div>
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-secondary-container flex items-center justify-center shadow-[0_0_30px_rgba(255,198,64,0.4)]">
+          <span class="material-symbols-outlined text-[36px] text-white">smart_toy</span>
+        </div>
+      </div>
+      <h2 class="font-bold text-lg text-on-surface text-center">Describe what happened...</h2>
+      <p class="text-xs text-on-surface-variant text-center mt-1">AI will detect violations & estimate fines</p>
+    </div>
+
+    <!-- AI Input -->
+    <div class="relative">
+      <input id="ch-ai-input" type="text" placeholder="e.g. I was riding without helmet in Delhi..." class="w-full bg-surface-container-high border border-white/10 rounded-xl py-3.5 pl-4 pr-14 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none" />
+      <button onclick="chAiEstimate()" class="absolute inset-y-1.5 right-1.5 w-10 h-10 rounded-lg bg-secondary text-on-secondary flex items-center justify-center active:scale-95 transition-all shadow-md">
+        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">send</span>
+      </button>
+    </div>
+
+    <!-- Quick Chips -->
+    <div class="flex flex-wrap gap-2 justify-center">
+      <button onclick="chAiQuick('I parked in no parking area')" class="px-3.5 py-2 rounded-full bg-surface-container border border-white/5 text-[12px] text-on-surface-variant hover:text-on-surface active:scale-95 transition-all">"No parking violation"</button>
+      <button onclick="chAiQuick('I was riding without helmet')" class="px-3.5 py-2 rounded-full bg-surface-container border border-white/5 text-[12px] text-on-surface-variant hover:text-on-surface active:scale-95 transition-all">"Riding without helmet"</button>
+      <button onclick="chAiQuick('I jumped a red light')" class="px-3.5 py-2 rounded-full bg-surface-container border border-white/5 text-[12px] text-on-surface-variant hover:text-on-surface active:scale-95 transition-all">"Jumped red light"</button>
+    </div>
+
+    <!-- AI Loading -->
+    <div id="ch-ai-loading" class="hidden flex items-center justify-center gap-3 text-secondary bg-secondary/10 px-5 py-2.5 rounded-full border border-secondary/20 mx-auto w-fit">
+      <span class="material-symbols-outlined animate-spin text-secondary text-[18px]">sync</span>
+      <span class="text-sm font-medium">Analyzing violations...</span>
+    </div>
+
+    <!-- AI Result -->
+    <div id="ch-ai-result" class="hidden p-5 rounded-xl bg-surface-container/80 border border-white/5 shadow-xl space-y-4">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-xs text-on-surface-variant">Estimated Fine</p>
+          <h4 id="ch-ai-total" class="font-bold text-3xl text-secondary">₹0</h4>
+        </div>
+        <div class="bg-secondary/10 px-3 py-1 rounded-full border border-secondary/20 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px] text-secondary">bolt</span>
+          <span class="text-[11px] font-bold text-secondary uppercase">AI + Backend</span>
+        </div>
+      </div>
+      <div id="ch-ai-details" class="space-y-3 pt-3 border-t border-white/5 text-sm text-on-surface leading-relaxed whitespace-pre-wrap"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════════════════ ADMIN / SETTINGS PAGE ═══════════════════ -->
+<main id="page-admin" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-6">
+  <div class="flex items-center gap-3 mb-2">
+    <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h2 class="font-title-lg text-title-lg text-on-surface">Admin & Settings</h2>
+  </div>
+
+  <!-- ── Server Connection ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-primary text-[20px]">dns</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Server Connection</h3>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <label class="text-[12px] text-on-surface-variant font-semibold uppercase tracking-wider block mb-1">RAG Server URL (port 3000)</label>
+        <input id="admin-server-url" type="url" class="w-full bg-surface-container-lowest/80 border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-3 px-4 text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none" />
+      </div>
+      <div class="flex gap-2">
+        <button onclick="adminSaveServer()" class="flex-1 py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-sm active:scale-95 transition-all">Save URL</button>
+        <button onclick="adminTestConnection()" class="flex-1 py-2.5 rounded-xl border border-white/10 text-on-surface font-semibold text-sm hover:bg-white/5 active:scale-95 transition-all">Test Connection</button>
+      </div>
+      <div id="admin-conn-status" class="text-label-sm font-label-sm text-on-surface-variant"></div>
+    </div>
+  </section>
+
+  <!-- ── Health Check ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-emerald-400 text-[20px]">monitor_heart</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Health Check</h3>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="adminHealthCheck('rag')" class="py-3 rounded-xl bg-surface-container border border-white/5 text-on-surface text-sm font-semibold hover:bg-surface-bright active:scale-95 transition-all flex flex-col items-center gap-1">
+        <span class="material-symbols-outlined text-primary text-[20px]">storage</span>
+        RAG Server
+      </button>
+      <button onclick="adminHealthCheck('challan')" class="py-3 rounded-xl bg-surface-container border border-white/5 text-on-surface text-sm font-semibold hover:bg-surface-bright active:scale-95 transition-all flex flex-col items-center gap-1">
+        <span class="material-symbols-outlined text-secondary text-[20px]">receipt_long</span>
+        Challan Server
+      </button>
+    </div>
+    <div id="admin-health-result" class="text-label-sm font-label-sm text-on-surface-variant bg-surface-container-lowest/50 rounded-lg p-3 hidden whitespace-pre-wrap font-mono text-[12px] max-h-[200px] overflow-y-auto"></div>
+  </section>
+
+  <!-- ── PDF Ingest (Upload) ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-secondary text-[20px]">upload_file</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Ingest PDF (Upload)</h3>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <label class="text-[12px] text-on-surface-variant font-semibold uppercase tracking-wider block mb-1">Select PDF File</label>
+        <input id="admin-pdf-file" type="file" accept=".pdf" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-xl py-2 px-3 text-sm text-on-surface file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-on-primary file:text-xs file:font-semibold" />
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">Country</label>
+          <input id="admin-ingest-country" type="text" value="India" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">Level</label>
+          <select id="admin-ingest-level" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary">
+            <option value="national">National</option>
+            <option value="state">State</option>
+            <option value="city">City</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">State</label>
+          <input id="admin-ingest-state" type="text" value="ALL" placeholder="e.g. MP" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">Start Page</label>
+          <input id="admin-ingest-startpage" type="number" value="1" min="1" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">Chunk Size</label>
+          <input id="admin-ingest-chunksize" type="number" value="1200" min="200" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary" />
+        </div>
+      </div>
+      <button onclick="adminIngestUpload()" id="admin-upload-btn" class="w-full py-2.5 rounded-xl bg-secondary text-on-secondary font-semibold text-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">cloud_upload</span> Upload & Ingest
+      </button>
+    </div>
+  </section>
+
+  <!-- ── PDF Ingest (Server-Local) ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-tertiary-container text-[20px]">folder_open</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Ingest Local PDF (Server)</h3>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <label class="text-[12px] text-on-surface-variant font-semibold uppercase tracking-wider block mb-1">Filename (on server's pdf/ folder)</label>
+        <input id="admin-local-filename" type="text" placeholder="e.g. motor_vehicles_act.pdf" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-xl py-3 px-4 text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:border-primary" />
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">Country</label>
+          <input id="admin-local-country" type="text" value="India" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary" />
+        </div>
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">Level</label>
+          <select id="admin-local-level" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary">
+            <option value="national">National</option>
+            <option value="state">State</option>
+            <option value="city">City</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[11px] text-on-surface-variant font-semibold block mb-1">State</label>
+          <input id="admin-local-state" type="text" value="ALL" placeholder="e.g. MP" class="w-full bg-surface-container-lowest/80 border border-white/10 rounded-lg py-2 px-3 text-sm text-on-surface outline-none focus:border-primary" />
+        </div>
+      </div>
+      <button onclick="adminIngestLocal()" class="w-full py-2.5 rounded-xl bg-tertiary-container text-on-tertiary-container font-semibold text-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">play_arrow</span> Ingest from Server
+      </button>
+    </div>
+  </section>
+
+  <!-- ── List Server PDFs ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[20px]">description</span>
+        <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Server PDFs</h3>
+      </div>
+      <button onclick="adminListPDFs()" class="px-4 py-1.5 rounded-full bg-surface-container border border-white/5 text-on-surface text-label-sm font-label-sm hover:bg-surface-bright active:scale-95 transition-all">Refresh</button>
+    </div>
+    <div id="admin-pdf-list" class="text-label-sm font-label-sm text-on-surface-variant">Click Refresh to load...</div>
+  </section>
+
+  <!-- ── Challan Server Controls ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-secondary text-[20px]">calculate</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Challan Server</h3>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="adminChallanStats()" class="py-2.5 rounded-xl bg-surface-container border border-white/5 text-on-surface text-sm font-semibold hover:bg-surface-bright active:scale-95 transition-all">📊 Stats</button>
+      <button onclick="adminChallanReload()" class="py-2.5 rounded-xl bg-surface-container border border-white/5 text-on-surface text-sm font-semibold hover:bg-surface-bright active:scale-95 transition-all">🔄 Reload Data</button>
+    </div>
+    <div id="admin-challan-result" class="text-label-sm font-label-sm text-on-surface-variant bg-surface-container-lowest/50 rounded-lg p-3 hidden whitespace-pre-wrap font-mono text-[12px] max-h-[200px] overflow-y-auto"></div>
+  </section>
+
+  <!-- ── Ingest Result Log ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-3">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-on-surface-variant text-[20px]">terminal</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Activity Log</h3>
+    </div>
+    <div id="admin-log" class="bg-surface-container-lowest/50 rounded-lg p-3 font-mono text-[12px] text-on-surface-variant max-h-[300px] overflow-y-auto whitespace-pre-wrap">Ready.</div>
+  </section>
+</main>
+
+<main id="page-settings" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-5">
+  <div class="flex items-center gap-3 mb-2">
+    <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h2 class="font-title-lg text-title-lg text-on-surface">Settings</h2>
+  </div>
+
+  <!-- ── Offline Mode Toggle ── -->
+  <section class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-secondary text-[20px]">cloud_download</span>
+      <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Offline Mode</h3>
+    </div>
+    <p class="text-[13px] text-on-surface-variant leading-relaxed">
+      Download challan data to your device so the Challan Calculator works even without internet.
+    </p>
+    <div class="flex items-center justify-between bg-surface-container/60 rounded-xl p-4 border border-white/5">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary text-[22px]" id="offline-icon">cloud_off</span>
+        <div>
+          <p class="text-sm font-semibold text-on-surface" id="offline-label">Offline Data</p>
+          <p class="text-[11px] text-on-surface-variant" id="offline-status">Not downloaded</p>
+        </div>
+      </div>
+      <!-- Toggle Switch -->
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="offline-toggle" class="sr-only peer" onchange="handleOfflineToggle(this)">
+        <div class="w-11 h-6 bg-surface-container-highest rounded-full peer
+                    peer-checked:after:translate-x-full peer-checked:after:border-white
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                    after:bg-on-surface-variant after:rounded-full after:h-5 after:w-5
+                    after:transition-all
+                    peer-checked:bg-secondary peer-checked:after:bg-on-secondary"></div>
+      </label>
+    </div>
+    <!-- Sync info -->
+    <div id="offline-sync-info" class="hidden text-[12px] text-on-surface-variant bg-surface-container-lowest/50 rounded-lg p-3 space-y-1">
+      <div class="flex justify-between"><span>Records:</span><span id="offline-count" class="font-semibold text-on-surface">—</span></div>
+      <div class="flex justify-between"><span>Last sync:</span><span id="offline-last-sync" class="font-semibold text-on-surface">—</span></div>
+    </div>
+    <!-- Downloading indicator -->
+    <div id="offline-downloading" class="hidden flex items-center gap-3 text-secondary">
+      <span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+      <span class="text-sm font-medium">Downloading challan data...</span>
+    </div>
+  </section>
+
+
+</main>
+
+
+<!-- ═══════════════════ PROFILE & SETTINGS PAGE ═══════════════════ -->
+<main id="page-profile" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-8">
+
+  <!-- Back Button & Title -->
+  <div class="flex items-center gap-3 mb-2">
+    <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all hover:bg-surface-bright">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h2 class="font-title-lg text-title-lg text-on-surface">Profile & Settings</h2>
+  </div>
+
+  <!-- Profile Card -->
+  <section class="glass-panel rounded-xl p-6 glow-amber relative overflow-hidden flex flex-col items-center text-center">
+    <div class="absolute inset-0 bg-gradient-to-b from-secondary/10 to-transparent pointer-events-none"></div>
+    <div class="relative w-24 h-24 mb-4">
+      <img id="prof-avatar" alt="Profile Picture" class="w-full h-full rounded-full object-cover border-4 border-surface" style="display:none;" src="">
+      <div id="prof-avatar-fallback" class="w-full h-full rounded-full bg-surface-container-highest border-4 border-surface flex items-center justify-center">
+        <span class="material-symbols-outlined text-[48px] text-on-surface-variant">person</span>
+      </div>
+      <div id="prof-verified-badge" class="absolute bottom-0 right-0 bg-secondary w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface shadow-lg hidden">
+        <span class="material-symbols-outlined text-on-secondary-container text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+      </div>
+    </div>
+    <h2 id="prof-name" class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-1">Guest User</h2>
+    <p id="prof-email" class="font-body-md text-body-md text-on-surface-variant mb-4">Sign in to get started</p>
+    <div class="bg-surface-container-high rounded-full px-4 py-2 flex items-center gap-2 border border-white/5">
+      <span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+      <span class="font-label-lg text-label-lg text-secondary">7 Day Safe Driving Streak</span>
+    </div>
+  </section>
+
+  <!-- Settings List -->
+  <section class="space-y-4">
+    <h3 class="font-title-lg text-title-lg text-on-surface px-2">Settings</h3>
+    <div class="glass-panel rounded-xl overflow-hidden divide-y divide-white/5">
+      <!-- Account / Login / Logout -->
+      <button id="prof-auth-btn" onclick="handleProfileAuth()" class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+          <span id="prof-auth-icon" class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">login</span>
+        </div>
+        <div class="flex-1">
+          <div id="prof-auth-title" class="font-title-lg text-[16px] leading-tight text-on-surface">Sign In</div>
+          <div id="prof-auth-subtitle" class="font-body-md text-[13px] text-on-surface-variant">Email or OTP login</div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <!-- Notifications -->
+      <button class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">notifications_active</span>
+        </div>
+        <div class="flex-1">
+          <div class="font-title-lg text-[16px] leading-tight text-on-surface">Notifications</div>
+          <div class="font-body-md text-[13px] text-on-surface-variant">Alerts, summaries</div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <!-- Voice Assistant -->
+      <button class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">mic</span>
+        </div>
+        <div class="flex-1">
+          <div class="font-title-lg text-[16px] leading-tight text-on-surface">Voice Assistant</div>
+          <div class="font-body-md text-[13px] text-on-surface-variant">Hands-free controls</div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <!-- Language -->
+      <button class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">language</span>
+        </div>
+        <div class="flex-1">
+          <div class="font-title-lg text-[16px] leading-tight text-on-surface">Language</div>
+          <div class="font-body-md text-[13px] text-on-surface-variant">English (US)</div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Offline Challan Data -->
+  <section class="space-y-4">
+    <h3 class="font-title-lg text-title-lg text-on-surface px-2">Offline Data</h3>
+    <div class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-secondary text-[20px]">cloud_download</span>
+        <h3 class="font-label-lg text-label-lg text-on-surface uppercase tracking-wider">Offline Mode</h3>
+      </div>
+      <p class="text-[13px] text-on-surface-variant leading-relaxed">
+        Download challan data to your device so the Challan Calculator works even without internet.
+      </p>
+      <div class="flex items-center justify-between bg-surface-container/60 rounded-xl p-4 border border-white/5">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary text-[22px]" id="prof-offline-icon">cloud_off</span>
+          <div>
+            <p class="text-sm font-semibold text-on-surface" id="prof-offline-label">Offline Data</p>
+            <p class="text-[11px] text-on-surface-variant" id="prof-offline-status">Not downloaded</p>
+          </div>
+        </div>
+        <!-- Toggle Switch -->
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="prof-offline-toggle" class="sr-only peer" onchange="handleOfflineToggle(this)">
+          <div class="w-11 h-6 bg-surface-container-highest rounded-full peer
+                      peer-checked:after:translate-x-full peer-checked:after:border-white
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                      after:bg-on-surface-variant after:rounded-full after:h-5 after:w-5
+                      after:transition-all
+                      peer-checked:bg-secondary peer-checked:after:bg-on-secondary"></div>
+        </label>
+      </div>
+      <!-- Sync info -->
+      <div id="prof-offline-sync-info" class="hidden text-[12px] text-on-surface-variant bg-surface-container-lowest/50 rounded-lg p-3 space-y-1">
+        <div class="flex justify-between"><span>Records:</span><span id="prof-offline-count" class="font-semibold text-on-surface">—</span></div>
+        <div class="flex justify-between"><span>Last sync:</span><span id="prof-offline-last-sync" class="font-semibold text-on-surface">—</span></div>
+      </div>
+      <!-- Downloading indicator -->
+      <div id="prof-offline-downloading" class="hidden flex items-center gap-3 text-secondary">
+        <span class="material-symbols-outlined animate-spin text-[18px]">sync</span>
+        <span class="text-sm font-medium">Downloading challan data...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Downloaded PDFs Section -->
+  <section class="space-y-4">
+    <h3 class="font-title-lg text-title-lg text-on-surface px-2">Downloaded Rule Packs</h3>
+    <div class="glass-panel rounded-xl p-5 border border-white/5 space-y-4">
+      <div id="prof-downloaded-pdfs-list" class="space-y-3">
+        <!-- Rendered via JS -->
+      </div>
+      <p id="prof-downloaded-pdfs-empty" class="text-[13px] text-on-surface-variant leading-relaxed text-center hidden">
+        No PDFs downloaded yet. Go to Legal Search to download rule packs.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sync Status & Emergency Row -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Sync Card -->
+    <section class="glass-panel rounded-xl p-4 flex flex-col justify-between min-h-[120px] border border-white/5">
+      <div class="flex justify-between items-start mb-2">
+        <div class="font-label-lg text-label-lg text-on-surface-variant">Rule Updates</div>
+        <div class="flex items-center gap-1 bg-surface-container-highest px-2 py-1 rounded-full">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          <span class="font-label-sm text-[10px] text-on-surface uppercase tracking-wider">Syncing</span>
+        </div>
+      </div>
+      <div class="mt-auto">
+        <div class="font-title-lg text-title-lg text-on-surface">Up to date</div>
+        <div class="font-body-md text-[13px] text-on-surface-variant">Last Synced: 2 mins ago</div>
+      </div>
+    </section>
+    <!-- Emergency Card -->
+    <section class="glass-panel rounded-xl p-4 border border-error/20 bg-error/5 min-h-[120px] relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 bg-error/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+      <div class="font-title-lg text-title-lg text-error mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined">emergency</span>
+        Emergency
+      </div>
+      <div class="flex gap-2">
+        <a href="tel:108" class="flex-1 bg-error-container hover:bg-error-container/80 transition-colors py-3 px-3 rounded-xl flex flex-col items-center justify-center gap-1 active:scale-95 no-underline">
+          <span class="material-symbols-outlined text-on-error-container text-[20px]">local_hospital</span>
+          <span class="font-label-sm text-[10px] text-on-error-container font-bold">Ambulance</span>
+          <span class="font-label-sm text-[11px] text-on-error-container/80 font-bold">Dial 108</span>
+        </a>
+        <a href="tel:100" class="flex-1 bg-error-container hover:bg-error-container/80 transition-colors py-3 px-3 rounded-xl flex flex-col items-center justify-center gap-1 active:scale-95 no-underline">
+          <span class="material-symbols-outlined text-on-error-container text-[20px]">local_police</span>
+          <span class="font-label-sm text-[10px] text-on-error-container font-bold">Police</span>
+          <span class="font-label-sm text-[11px] text-on-error-container/80 font-bold">Dial 100</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<!-- ═══════════════════ PROFILE AUTH MODAL ═══════════════════ -->
+<div id="prof-auth-modal" class="fixed inset-0 z-[100] hidden">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeProfAuthModal()"></div>
+  <div class="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-[2rem] border-t border-white/10" style="background: rgba(23, 31, 51, 0.97); backdrop-filter: blur(24px);">
+    <div class="p-6 pb-8 max-w-md mx-auto">
+      <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-3">
+          <span class="material-symbols-outlined text-[28px] text-surface" style="font-variation-settings: 'FILL' 1;">shield</span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Welcome</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-1">Sign in or create an account</p>
+      </div>
+      <div id="prof-modal-error" class="hidden mb-4 p-3 rounded-xl bg-error-container/20 border border-error/20">
+        <p class="font-body-md text-[13px] text-error flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">error</span><span id="prof-modal-error-text"></span></p>
+      </div>
+      <div id="prof-modal-success" class="hidden mb-4 p-3 rounded-xl bg-primary/10 border border-primary/20">
+        <p class="font-body-md text-[13px] text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span id="prof-modal-success-text"></span></p>
+      </div>
+      <div class="space-y-3 mb-4">
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">mail</span>
+          <input id="prof-modal-email" type="email" placeholder="Email address" class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-container-highest border border-white/10 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all">
+        </div>
+        <div id="prof-modal-pw-section" class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">lock</span>
+          <input id="prof-modal-password" type="password" placeholder="Password (min 6 characters)" class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-container-highest border border-white/10 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all">
+        </div>
+      </div>
+      <div class="space-y-2.5 mb-4">
+        <button id="prof-btn-login" onclick="profLogin()" class="w-full py-3.5 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-[18px]">login</span>Login</button>
+        <button id="prof-btn-signup" onclick="profSignup()" class="w-full py-3.5 rounded-xl bg-surface-container-highest border border-white/10 text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-[18px]">person_add</span>Create Account</button>
+      </div>
+      <div class="flex items-center gap-3 my-5"><div class="flex-1 h-px bg-white/10"></div><span class="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-wider">or use OTP</span><div class="flex-1 h-px bg-white/10"></div></div>
+      <button id="prof-btn-otp" onclick="profSendOTP()" class="w-full py-3.5 rounded-xl bg-secondary/15 border border-secondary/30 text-secondary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-secondary/25 active:scale-[0.98] transition-all mb-3"><span class="material-symbols-outlined text-[18px]">passkey</span>Send OTP to Email</button>
+      <div id="prof-otp-section" class="hidden space-y-3">
+        <div class="relative"><span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">pin</span><input id="prof-modal-otp" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP" class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-container-highest border border-secondary/30 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] text-center tracking-[0.5em] font-bold focus:outline-none focus:border-secondary/60 focus:ring-1 focus:ring-secondary/30 transition-all"></div>
+        <button id="prof-btn-verify" onclick="profVerifyOTP()" class="w-full py-3.5 rounded-xl bg-secondary text-on-secondary-container font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-secondary/90 active:scale-[0.98] transition-all font-bold"><span class="material-symbols-outlined text-[18px]">verified</span>Verify OTP</button>
+      </div>
+      <div id="prof-modal-loading" class="hidden flex justify-center py-4"><div class="auth-spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Navigate Page -->
+<main id="page-navigate" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-24 space-y-4">
+  <div class="flex items-center gap-3 mb-2">
+    <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all">
+      <span class="material-symbols-outlined text-primary">arrow_back</span>
+    </button>
+    <h2 class="font-title-lg text-title-lg text-on-surface">Safe Navigation</h2>
+  </div>
+  <p class="text-on-surface-variant text-label-sm">Coming next...</p>
+</main>
+
+<!-- ═══════════════════ AI ASSISTANT PAGE ═══════════════════ -->
+<main id="page-ai" class="page max-w-container-max mx-auto px-margin-mobile pt-6 pb-48 relative" style="min-height: calc(100vh - 120px);">
+  <div class="flex flex-col h-full">
+    <!-- AI Header -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <button onclick="switchPage('page-home')" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-primary">arrow_back</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <h2 class="font-title-lg text-title-lg text-primary">AI Assistant</h2>
+          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Orb -->
+    <div id="ai-hero" class="flex flex-col items-center justify-center py-8 mb-4">
+      <div class="relative w-28 h-28 mb-6 flex items-center justify-center">
+        <div class="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse"></div>
+        <div class="absolute inset-2 bg-secondary/15 rounded-full blur-xl animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="relative w-20 h-20 rounded-full bg-gradient-to-tr from-primary-container to-secondary-container opacity-90 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(164,201,255,0.3)]">
+          <span class="material-symbols-outlined text-[40px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+        </div>
+        <div class="absolute top-0 right-0 w-2 h-2 rounded-full bg-secondary shadow-[0_0_5px_#ffc640] animate-bounce"></div>
+        <div class="absolute bottom-2 left-0 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_5px_#a4c9ff] animate-ping" style="animation-duration: 3s;"></div>
+      </div>
+      <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-center text-on-surface max-w-[280px]">How can I help you drive safer today?</h2>
+    </div>
+
+    <!-- Quick Action Chips -->
+    <div class="flex overflow-x-auto gap-3 pb-6 no-scrollbar shrink-0 w-full snap-x">
+      <button onclick="aiQuickSend('Helmet Rules in my state')" class="ai-chip snap-start whitespace-nowrap px-5 py-2.5 rounded-full bg-surface-variant/40 border border-white/5 hover:bg-surface-variant/60 transition-colors font-label-lg text-label-lg text-on-surface-variant flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">two_wheeler</span> Helmet Rules
+      </button>
+      <button onclick="aiQuickSend('Parking Laws and fines')" class="ai-chip snap-start whitespace-nowrap px-5 py-2.5 rounded-full bg-surface-variant/40 border border-white/5 hover:bg-surface-variant/60 transition-colors font-label-lg text-label-lg text-on-surface-variant flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">local_parking</span> Parking Laws
+      </button>
+      <button onclick="aiQuickSend('Drunk driving penalty and jail time')" class="ai-chip snap-start whitespace-nowrap px-5 py-2.5 rounded-full bg-surface-variant/40 border border-white/5 hover:bg-surface-variant/60 transition-colors font-label-lg text-label-lg text-on-surface-variant flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">local_bar</span> DUI Laws
+      </button>
+      <button onclick="aiQuickSend('Challan fine for overspeeding')" class="ai-chip snap-start whitespace-nowrap px-5 py-2.5 rounded-full bg-surface-variant/40 border border-white/5 hover:bg-surface-variant/60 transition-colors font-label-lg text-label-lg text-on-surface-variant flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">receipt_long</span> Challan Help
+      </button>
+    </div>
+
+    <!-- Chat Bubbles -->
+    <div id="ai-chat-container" class="flex flex-col gap-5 mt-2 flex-1 overflow-y-auto no-scrollbar"></div>
+  </div>
+</main>
+
+<!-- AI Chat Input Bar (only visible on AI page) -->
+<div id="ai-input-bar" class="fixed bottom-[92px] left-margin-mobile right-margin-mobile z-40 hidden">
+  <div class="bg-surface-container-highest/90 backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center gap-2 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+    <input id="ai-chat-input" class="flex-1 bg-transparent border-none text-on-surface font-body-md focus:ring-0 placeholder:text-on-surface-variant/50 px-3" placeholder="Ask about traffic laws..." type="text"/>
+    <button id="ai-send-btn" class="w-10 h-10 bg-secondary text-on-secondary rounded-full shadow-md hover:scale-105 transition-transform flex items-center justify-center shrink-0">
+      <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">send</span>
+    </button>
+  </div>
+</div>
+
+
+
+<!-- ═══════════════════ BOTTOM NAV BAR (4 tabs) ═══════════════════ -->
+<div class="fixed bottom-5 left-margin-mobile right-margin-mobile z-50">
+  <div class="bg-surface-container/85 backdrop-blur-xl border border-white/10 rounded-full py-2 px-4 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+    <button onclick="switchPage('page-home')" id="nav-home" class="nav-btn flex flex-col items-center gap-0.5 py-1 px-3 text-primary transition-all active:scale-95 duration-200">
+      <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">home</span>
+      <span class="font-label-sm text-[10px] uppercase tracking-wider font-bold">Home</span>
+    </button>
+    <button onclick="switchPage('page-search')" id="nav-search" class="nav-btn flex flex-col items-center gap-0.5 py-1 px-3 text-on-surface-variant/80 transition-all active:scale-95 duration-200">
+      <span class="material-symbols-outlined text-[24px]">gavel</span>
+      <span class="font-label-sm text-[10px] uppercase tracking-wider font-semibold">Legal</span>
+    </button>
+    <button onclick="switchPage('page-challan')" id="nav-challan" class="nav-btn flex flex-col items-center gap-0.5 py-1 px-3 text-on-surface-variant/80 transition-all active:scale-95 duration-200">
+      <span class="material-symbols-outlined text-[24px]">receipt_long</span>
+      <span class="font-label-sm text-[10px] uppercase tracking-wider font-semibold">Challans</span>
+    </button>
+    <button onclick="switchPage('page-ai')" id="nav-ai" class="nav-btn flex flex-col items-center gap-0.5 py-1 px-3 text-on-surface-variant/80 transition-all active:scale-95 duration-200">
+      <span class="material-symbols-outlined text-[24px]">smart_toy</span>
+      <span class="font-label-sm text-[10px] uppercase tracking-wider font-semibold">AI</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════
+const DEFAULT_SERVER = 'http://10.55.214.209:3000';
+let BASE_URL = localStorage.getItem('roadlaw_server') || DEFAULT_SERVER;
+
+// getChallanURL() removed — unified server on port 3000
+// All challan endpoints now use BASE_URL directly
+
+// Timeout-safe fetch (works on all Android WebViews)
+function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
+let gpsCountry = 'India';
+let gpsState = 'ALL';
+
+// ═══════════════════════════════════════════════════════════
+//  GPS DETECTION
+// ═══════════════════════════════════════════════════════════
+function detectLocation() {
+  const geoDisplay = document.getElementById('geo-location-display');
+  const stateDisplay = document.getElementById('geo-state-display');
+  const countryDisplay = document.getElementById('geo-country');
+  const quickLoc = document.getElementById('quick-location');
+
+  if (window.Android) {
+    gpsCountry = window.Android.getCountry() || 'India';
+    gpsState = window.Android.getStateName() || 'ALL';
+    if (geoDisplay) geoDisplay.textContent = gpsState !== 'ALL' ? gpsState : 'Detecting...';
+    if (stateDisplay) stateDisplay.textContent = 'State: ' + gpsState;
+    if (countryDisplay) countryDisplay.textContent = gpsCountry;
+    if (quickLoc) quickLoc.textContent = gpsState !== 'ALL' ? gpsState : gpsCountry;
+    chInitState();
+    return;
+  }
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const lat = pos.coords.latitude.toFixed(4);
+      const lon = pos.coords.longitude.toFixed(4);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+        if (res.ok) {
+          const data = await res.json();
+          const city = data.address.city || data.address.town || data.address.suburb || '';
+          gpsState = data.address.state || 'ALL';
+          gpsCountry = data.address.country || 'India';
+          if (geoDisplay) geoDisplay.textContent = city ? `${city}, ${gpsState}` : gpsState;
+          if (stateDisplay) stateDisplay.textContent = 'State: ' + gpsState;
+          if (countryDisplay) countryDisplay.textContent = gpsCountry;
+          if (quickLoc) quickLoc.textContent = city || gpsState;
+          chInitState();
+        }
+      } catch(e) { if (geoDisplay) geoDisplay.textContent = 'India'; }
+    }, () => { if (geoDisplay) geoDisplay.textContent = 'Location unavailable'; });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PAGE NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function switchPage(pageId) {
+  try {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const targetPage = document.getElementById(pageId);
+    if (!targetPage) { console.error('Page not found:', pageId); return; }
+    targetPage.classList.add('active');
+
+    // Safe scroll
+    try { window.scrollTo({top: 0, behavior: 'instant'}); } catch(e) {}
+
+    // Show/hide AI input bar
+    const aiBar = document.getElementById('ai-input-bar');
+    if (aiBar) aiBar.style.display = (pageId === 'page-ai') ? 'block' : 'none';
+
+    // Highlight nav map
+    const navMap = {
+      'page-home': 'nav-home', 'page-search': 'nav-search',
+      'page-challan': 'nav-challan',
+      'page-ai': 'nav-ai', 'page-admin': 'nav-home', 'page-settings': 'nav-home',
+      'page-profile': 'nav-home', 'page-navigate': 'nav-home'
+    };
+    
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.classList.remove('text-primary');
+      btn.classList.add('text-on-surface-variant/80');
+      try {
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (icon) icon.style.fontVariationSettings = '';
+      } catch(e) {}
+    });
+    
+    const activeNav = document.getElementById(navMap[pageId]);
+    if (activeNav) {
+      activeNav.classList.add('text-primary');
+      activeNav.classList.remove('text-on-surface-variant/80');
+      try {
+        const icon = activeNav.querySelector('.material-symbols-outlined');
+        if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+      } catch(e) {}
+    }
+
+    // Call initializers at the END to prevent blocking rendering
+    if (pageId === 'page-profile') { setTimeout(initProfilePage, 50); }
+    if (pageId === 'page-search') { setTimeout(initLegalPDFs, 50); }
+    if (pageId === 'page-profile') { setTimeout(renderDownloadedPDFs, 50); }
+
+  } catch (err) {
+    console.error("switchPage error:", err);
+  }
+}
+
+function quickSearch(query) { switchPage('page-search'); }
+function quickChallan(query) { switchPage('page-challan'); }
+
+// ═══════════════════════════════════════════════════════════
+//  SERVER STATUS CHECK
+// ═══════════════════════════════════════════════════════════
+async function checkServerStatus() {
+  const statusEl = document.getElementById('server-status');
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/health`, {}, 5000);
+    if (res.ok) { statusEl.textContent = 'Online'; statusEl.className = 'font-title-lg text-[16px] text-emerald-400'; }
+    else { statusEl.textContent = 'Error'; statusEl.className = 'font-title-lg text-[16px] text-error'; }
+  } catch(e) { statusEl.textContent = 'Offline'; statusEl.className = 'font-title-lg text-[16px] text-error'; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AI ASSISTANT (Groq + RAG Backend)
+// ═══════════════════════════════════════════════════════════
+const aiChatContainer = document.getElementById('ai-chat-container');
+const aiChatInput = document.getElementById('ai-chat-input');
+const aiSendBtn = document.getElementById('ai-send-btn');
+
+// Groq API key (from .env)
+const GROQ_API_KEY = 'YOUR_GROQ_API_KEY_HERE';
+
+// Chat history
+const aiHistory = [];
+
+function aiAppendMsg(role, text) {
+  const isUser = role === 'user';
+  const div = document.createElement('div');
+  if (isUser) {
+    div.className = 'flex items-end gap-3 max-w-[88%] self-end';
+    div.innerHTML = `<div class="bg-secondary text-on-secondary p-4 rounded-2xl rounded-tr-none text-body-md font-body-md shadow-md">${text}</div>`;
+  } else {
+    div.className = 'flex items-end gap-3 max-w-[88%]';
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-surface-variant to-surface-bright flex items-center justify-center shrink-0 border border-white/10 shadow-sm">
+        <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+      </div>
+      <div class="bg-surface-container/80 backdrop-blur-md text-on-surface p-4 rounded-2xl rounded-tl-none border border-white/5 text-body-md font-body-md shadow-sm leading-relaxed whitespace-pre-wrap">${text}</div>`;
+  }
+  aiChatContainer.appendChild(div);
+  aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
+  // Also scroll the page main
+  const aiPage = document.getElementById('page-ai');
+  if (aiPage) aiPage.scrollTop = aiPage.scrollHeight;
+}
+
+let aiTypingEl = null;
+function aiShowTyping() {
+  aiTypingEl = document.createElement('div');
+  aiTypingEl.className = 'flex items-end gap-3 max-w-[88%]';
+  aiTypingEl.innerHTML = `
+    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-surface-variant to-surface-bright flex items-center justify-center shrink-0 border border-white/10 shadow-sm">
+      <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+    </div>
+    <div class="bg-surface-container/80 backdrop-blur-md p-4 rounded-2xl rounded-tl-none border border-white/5 flex gap-1.5 items-center h-[52px]">
+      <div class="w-2 h-2 rounded-full bg-primary/70 animate-bounce" style="animation-delay: 0s"></div>
+      <div class="w-2 h-2 rounded-full bg-primary/70 animate-bounce" style="animation-delay: 0.15s"></div>
+      <div class="w-2 h-2 rounded-full bg-primary/70 animate-bounce" style="animation-delay: 0.3s"></div>
+    </div>`;
+  aiChatContainer.appendChild(aiTypingEl);
+  aiChatContainer.scrollTop = aiChatContainer.scrollHeight;
+}
+function aiHideTyping() { if (aiTypingEl) { aiTypingEl.remove(); aiTypingEl = null; } }
+
+// Fetch RAG context from backend before sending to Groq
+async function fetchRAGContext(query) {
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, country: gpsCountry, state_name: gpsState })
+    }, 15000);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.data?.answer) {
+        return `[RAG Context from legal database]\n${data.data.answer}\n\n[Source chunks]: ${(data.data.sources || []).map(s => s.content?.substring(0, 200)).join(' | ')}`;
+      }
+    }
+  } catch(e) { console.warn('RAG fetch failed, continuing without context'); }
+  return null;
+}
+
+async function aiSendMessage(customText) {
+  const text = customText || aiChatInput.value.trim();
+  if (!text) return;
+  if (!customText) aiChatInput.value = '';
+
+  // Hide hero on first message
+  const hero = document.getElementById('ai-hero');
+  if (hero) hero.style.display = 'none';
+  // Hide chips
+  document.querySelectorAll('.ai-chip').forEach(c => c.parentElement.style.display = 'none');
+
+  aiAppendMsg('user', text);
+  aiShowTyping();
+
+  // Replace "my state"/"my nation" with actual GPS values so RAG searches only user's state
+  let searchQuery = text;
+  const stateLabel = gpsState !== 'ALL' ? gpsState : 'India';
+  searchQuery = searchQuery.replace(/\bmy\s+state\b/gi, stateLabel);
+  searchQuery = searchQuery.replace(/\bmere\s+state\b/gi, stateLabel);
+  searchQuery = searchQuery.replace(/\bhamara\s+state\b/gi, stateLabel);
+  searchQuery = searchQuery.replace(/\bhamari\s+state\b/gi, stateLabel);
+  searchQuery = searchQuery.replace(/\bmy\s+nation\b/gi, gpsCountry);
+  searchQuery = searchQuery.replace(/\bmy\s+country\b/gi, gpsCountry);
+  searchQuery = searchQuery.replace(/\bmere\s+desh\b/gi, gpsCountry);
+  searchQuery = searchQuery.replace(/\bin\s+my\s+area\b/gi, 'in ' + stateLabel);
+
+  // Step 1: Get RAG context from backend (uses resolved query + GPS state)
+  const ragContext = await fetchRAGContext(searchQuery);
+
+  // Step 2: Build messages with live system prompt + RAG context
+  const sysPrompt = `You are DriveLegal AI, a friendly Indian traffic law safety assistant. You help drivers understand traffic violations, MV Act sections (e.g. Section 129 helmets, Section 185 drunk driving), fines, and safety tips. When given RAG context from legal documents, use it to give accurate, state-specific answers. Keep responses concise and formatted clearly. The user is currently located in: ${gpsState}, ${gpsCountry}. Always prioritize laws for this state.`;
+  const messages = [{ role: 'system', content: sysPrompt }, ...aiHistory];
+  if (ragContext) {
+    messages.push({ role: "system", content: ragContext });
+  }
+  messages.push({ role: "user", content: text });
+
+  // Step 3: Call Groq
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages })
+    });
+    aiHideTyping();
+    if (res.ok) {
+      const data = await res.json();
+      const reply = data.choices[0].message.content;
+      aiAppendMsg('assistant', reply);
+      aiHistory.push({ role: "user", content: text });
+      aiHistory.push({ role: "assistant", content: reply });
+    } else if (res.status === 401) {
+      aiAppendMsg('assistant', 'API Key invalid. Click the Settings gear icon to update your Groq API key.');
+    } else {
+      aiAppendMsg('assistant', `API Error (${res.status}). Please check your connection and API key.`);
+    }
+  } catch(e) {
+    aiHideTyping();
+    aiAppendMsg('assistant', 'Network error. Could not reach Groq API. Check your internet connection.');
+  }
+}
+
+function aiQuickSend(text) { aiSendMessage(text); }
+
+// AI event listeners
+if (aiSendBtn) aiSendBtn.addEventListener('click', () => aiSendMessage());
+if (aiChatInput) aiChatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); aiSendMessage(); } });
+
+
+
+// ═══════════════════════════════════════════════════════════
+//  CHALLAN FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+let chVehicle = 'bike';
+
+function chSwitchTab(tab) {
+  const manual = document.getElementById('ch-content-manual');
+  const ai = document.getElementById('ch-content-ai');
+  const btnManual = document.getElementById('ch-tab-manual');
+  const btnAi = document.getElementById('ch-tab-ai');
+  if (tab === 'manual') {
+    manual.classList.remove('hidden'); ai.classList.add('hidden');
+    btnManual.className = 'flex-1 py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-secondary/20 to-secondary-container/20 text-secondary border border-secondary/30 shadow-[0_0_15px_rgba(255,198,64,0.15)] flex items-center justify-center gap-2';
+    btnAi.className = 'flex-1 py-2.5 px-4 rounded-full text-sm font-medium text-on-surface-variant transition-all duration-300 flex items-center justify-center gap-2';
+  } else {
+    ai.classList.remove('hidden'); manual.classList.add('hidden');
+    btnAi.className = 'flex-1 py-2.5 px-4 rounded-full text-sm font-semibold transition-all duration-300 bg-gradient-to-r from-secondary/20 to-secondary-container/20 text-secondary border border-secondary/30 shadow-[0_0_15px_rgba(255,198,64,0.15)] flex items-center justify-center gap-2';
+    btnManual.className = 'flex-1 py-2.5 px-4 rounded-full text-sm font-medium text-on-surface-variant transition-all duration-300 flex items-center justify-center gap-2';
+  }
+}
+
+function chSelectVehicle(type) {
+  chVehicle = type;
+  document.querySelectorAll('.ch-vehicle-btn').forEach(btn => {
+    btn.className = 'ch-vehicle-btn group flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 active:scale-95 bg-surface-container border-white/5 text-on-surface-variant';
+  });
+  const sel = document.getElementById('ch-v-' + type);
+  if (sel) sel.className = 'ch-vehicle-btn group active flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 active:scale-95 bg-primary/10 border-primary text-primary shadow-[0_0_12px_rgba(164,201,255,0.15)]';
+}
+
+function chToggleVio(el) {
+  el.classList.toggle('ch-selected');
+  const isSelected = el.classList.contains('ch-selected');
+  const check = el.querySelector('.ch-check');
+  const icon = check.querySelector('.material-symbols-outlined');
+  if (isSelected) {
+    el.style.borderColor = '#ffc640'; el.style.boxShadow = '0 0 12px rgba(255,198,64,0.2)';
+    check.style.background = '#ffc640'; check.style.borderColor = '#ffc640';
+    icon.style.opacity = '1';
+  } else {
+    el.style.borderColor = ''; el.style.boxShadow = '';
+    check.style.background = ''; check.style.borderColor = '';
+    icon.style.opacity = '0';
+  }
+  chRecalc();
+}
+
+function chRecalc() {
+  const history = document.getElementById('ch-history')?.value || 'first';
+  let total = 0;
+  const breakdown = document.getElementById('ch-breakdown');
+  const resultCard = document.getElementById('ch-result-card');
+  if (breakdown) breakdown.innerHTML = '';
+
+  document.querySelectorAll('.ch-vio-card.ch-selected').forEach(card => {
+    let fine = parseInt(card.dataset.fine) || 0;
+    if (history === 'repeat') fine = Math.round(fine * 1.5);
+    total += fine;
+    if (breakdown) {
+      breakdown.innerHTML += `<div class="flex justify-between items-center"><span class="text-sm text-on-surface">${card.dataset.name}</span><span class="text-sm font-bold text-primary">₹${fine.toLocaleString()}</span></div>`;
+    }
+  });
+
+  const totalEl = document.getElementById('ch-total-fine');
+  if (totalEl) totalEl.textContent = '₹' + total.toLocaleString();
+  if (resultCard) { if (total > 0) resultCard.classList.remove('hidden'); else resultCard.classList.add('hidden'); }
+}
+
+async function chCalculate() {
+  const selected = document.querySelectorAll('.ch-vio-card.ch-selected');
+  if (!selected.length) { chRecalc(); return; }
+
+  const violations = [];
+  selected.forEach(c => violations.push(c.dataset.name));
+  const query = violations.join(', ') + ' fine for ' + chVehicle;
+  const state = document.getElementById('ch-state')?.value || gpsState;
+
+  // Call challan backend (unified server)
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/calculator`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, country: gpsCountry, state_name: state })
+    }, 25000);
+    if (res.ok) {
+      const data = await res.json();
+      const backendDiv = document.getElementById('ch-backend-response');
+      const backendText = document.getElementById('ch-backend-text');
+      if (backendDiv && backendText && data.data) {
+        const d = data.data;
+        // Update total with backend value
+        if (d.total_fine) {
+          const totalEl = document.getElementById('ch-total-fine');
+          if (totalEl) totalEl.textContent = '₹' + Number(d.total_fine).toLocaleString();
+        }
+        // Build nice breakdown
+        let text = '';
+        if (d.violations && d.violations.length) {
+          d.violations.forEach(v => {
+            text += `⚖️ ${v.offense}\n   Section: ${v.section}\n   Fine: ₹${Number(v.fine_amount).toLocaleString()}`;
+            if (v.first_offense) text += ` (1st: ₹${v.first_offense})`;
+            if (v.repeat_offense) text += ` (Repeat: ₹${v.repeat_offense})`;
+            if (v.imprisonment) text += `\n   ⚠️ Imprisonment: ${v.imprisonment}`;
+            text += '\n\n';
+          });
+        }
+        if (d.breakdown) text += '📊 ' + d.breakdown;
+        if (d.message) text += '\n' + d.message;
+        backendText.textContent = text || JSON.stringify(d, null, 2);
+        backendDiv.classList.remove('hidden');
+      }
+    }
+  } catch(e) { console.warn('Challan backend unavailable:', e.message); }
+}
+
+async function chAiEstimate() {
+  const input = document.getElementById('ch-ai-input');
+  const text = input?.value.trim();
+  if (!text) return;
+
+  const loading = document.getElementById('ch-ai-loading');
+  const result = document.getElementById('ch-ai-result');
+  const details = document.getElementById('ch-ai-details');
+  const totalEl = document.getElementById('ch-ai-total');
+
+  loading.classList.remove('hidden');
+  result.classList.add('hidden');
+
+  const state = document.getElementById('ch-state')?.value || gpsState;
+
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/calculator`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: text + ' for ' + chVehicle, country: gpsCountry, state_name: state })
+    }, 25000);
+
+    loading.classList.add('hidden');
+
+    if (res.ok) {
+      const data = await res.json();
+      result.classList.remove('hidden');
+      if (data.data) {
+        const d = data.data;
+        totalEl.textContent = d.total_fine ? '₹' + Number(d.total_fine).toLocaleString() : '₹0';
+        let html = '';
+        if (d.violations && d.violations.length) {
+          d.violations.forEach(v => {
+            html += `<div class="flex items-start gap-3 py-2 border-b border-white/5">`;
+            html += `<div class="w-8 h-8 rounded-full bg-red-500/15 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-[16px]">warning</span></div>`;
+            html += `<div class="flex-1"><p class="text-sm font-semibold text-on-surface">${v.offense}</p>`;
+            html += `<p class="text-xs text-on-surface-variant">Section: ${v.section} • Fine: ₹${Number(v.fine_amount).toLocaleString()}</p>`;
+            if (v.imprisonment) html += `<p class="text-xs text-error">⚠️ Imprisonment: ${v.imprisonment}</p>`;
+            if (v.description) html += `<p class="text-xs text-on-surface-variant mt-1">${v.description}</p>`;
+            html += `</div></div>`;
+          });
+        }
+        if (d.message) html += `<p class="text-xs text-on-surface-variant pt-2">${d.message}</p>`;
+        if (!d.found) html += `<p class="text-sm text-secondary">No matching challan found. Try different keywords.</p>`;
+        details.innerHTML = html || JSON.stringify(d, null, 2);
+      } else {
+        details.textContent = JSON.stringify(data, null, 2);
+        totalEl.textContent = '₹—';
+      }
+    } else {
+      loading.classList.add('hidden');
+      result.classList.remove('hidden');
+      details.textContent = 'Server error (' + res.status + '). Is the server running?';
+      totalEl.textContent = '₹—';
+    }
+  } catch(e) {
+    loading.classList.add('hidden');
+    // ── OFFLINE FALLBACK ──
+    if (window.AndroidBridge && window.AndroidBridge.isOfflineModeEnabled()) {
+      try {
+        const offlineJson = window.AndroidBridge.searchChallanOffline(text, state, chVehicle);
+        const offlineData = JSON.parse(offlineJson);
+        result.classList.remove('hidden');
+        renderChallanResult(offlineData, totalEl, details, true);
+        return;
+      } catch(offlineErr) {
+        console.warn('Offline search also failed:', offlineErr);
+      }
+    }
+    result.classList.remove('hidden');
+    details.textContent = 'Cannot reach server. Check if backend is running.\n' + e.message;
+    totalEl.textContent = '₹—';
+  }
+}
+
+function chAiQuick(text) {
+  const input = document.getElementById('ch-ai-input');
+  if (input) input.value = text;
+  chAiEstimate();
+}
+
+function chInitState() {
+  // Auto-select GPS state in challan dropdown
+  const sel = document.getElementById('ch-state');
+  if (sel && gpsState !== 'ALL') {
+    for (let opt of sel.options) {
+      if (opt.value.toLowerCase() === gpsState.toLowerCase()) { sel.value = opt.value; break; }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ADMIN FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function adminLog(msg) {
+  const log = document.getElementById('admin-log');
+  if (log) { log.textContent += '\n[' + new Date().toLocaleTimeString() + '] ' + msg; log.scrollTop = log.scrollHeight; }
+}
+
+function adminSaveServer() {
+  const url = document.getElementById('admin-server-url').value.trim();
+  if (!url) return;
+  localStorage.setItem('roadlaw_server', url);
+  BASE_URL = url;
+  document.getElementById('admin-conn-status').innerHTML = '<span class="text-emerald-400">✓ Server URL saved</span>';
+  adminLog('Server URL saved: ' + url);
+}
+
+async function adminTestConnection() {
+  const status = document.getElementById('admin-conn-status');
+  status.innerHTML = '<span class="text-secondary">Testing...</span>';
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/health`, {}, 8000);
+    if (res.ok) {
+      const data = await res.json();
+      status.innerHTML = '<span class="text-emerald-400">✓ Connected</span> — ' + JSON.stringify(data).substring(0, 100);
+      adminLog('Connection OK: ' + BASE_URL);
+    } else {
+      status.innerHTML = '<span class="text-error">✗ Error ' + res.status + '</span>';
+      adminLog('Connection failed: HTTP ' + res.status);
+    }
+  } catch(e) {
+    status.innerHTML = '<span class="text-error">✗ Cannot reach server</span>';
+    adminLog('Connection failed: ' + e.message);
+  }
+}
+
+async function adminHealthCheck(type) {
+  const el = document.getElementById('admin-health-result');
+  el.classList.remove('hidden');
+  el.textContent = 'Checking...';
+  const url = type === 'rag' ? `${BASE_URL}/api/health` : `${BASE_URL}/api/calculator/stats`;
+  try {
+    const res = await fetchWithTimeout(url, {}, 8000);
+    const data = await res.json();
+    el.textContent = JSON.stringify(data, null, 2);
+    adminLog(type.toUpperCase() + ' health: OK');
+  } catch(e) {
+    el.textContent = '✗ ' + type.toUpperCase() + ' server unreachable\n' + e.message;
+    adminLog(type.toUpperCase() + ' health: FAILED - ' + e.message);
+  }
+}
+
+async function adminIngestUpload() {
+  const fileInput = document.getElementById('admin-pdf-file');
+  if (!fileInput.files.length) { adminLog('ERROR: No file selected'); return; }
+  const btn = document.getElementById('admin-upload-btn');
+  btn.textContent = 'Uploading...'; btn.disabled = true;
+
+  const form = new FormData();
+  form.append('file', fileInput.files[0]);
+  form.append('country', document.getElementById('admin-ingest-country').value);
+  form.append('level', document.getElementById('admin-ingest-level').value);
+  form.append('state_name', document.getElementById('admin-ingest-state').value);
+  form.append('start_page', document.getElementById('admin-ingest-startpage').value);
+  form.append('chunk_size', document.getElementById('admin-ingest-chunksize').value);
+
+  adminLog('Uploading: ' + fileInput.files[0].name + '...');
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/ingest`, { method: 'POST', body: form });
+    const data = await res.json();
+    adminLog('Ingest result:\n' + JSON.stringify(data, null, 2));
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">cloud_upload</span> Upload & Ingest';
+  } catch(e) {
+    adminLog('Upload FAILED: ' + e.message);
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">cloud_upload</span> Upload & Ingest';
+  }
+  btn.disabled = false;
+}
+
+async function adminIngestLocal() {
+  const filename = document.getElementById('admin-local-filename').value.trim();
+  if (!filename) { adminLog('ERROR: No filename'); return; }
+  const body = {
+    filename,
+    country: document.getElementById('admin-local-country').value,
+    level: document.getElementById('admin-local-level').value,
+    state_name: document.getElementById('admin-local-state').value,
+    start_page: 1, chunk_size: 1200
+  };
+  adminLog('Ingesting local: ' + filename + '...');
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/ingest-local`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    adminLog('Local ingest result:\n' + JSON.stringify(data, null, 2));
+  } catch(e) { adminLog('Local ingest FAILED: ' + e.message); }
+}
+
+async function adminListPDFs() {
+  const el = document.getElementById('admin-pdf-list');
+  el.textContent = 'Loading...';
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/admin/pdfs`, {}, 8000);
+    const data = await res.json();
+    if (data.pdfs && data.pdfs.length) {
+      el.innerHTML = data.pdfs.map(f => `<div class="py-1 px-2 bg-surface-container/50 rounded mb-1 flex items-center gap-2"><span class="material-symbols-outlined text-[14px] text-primary">description</span>${f}</div>`).join('');
+    } else {
+      el.textContent = 'No PDFs found on server.';
+    }
+    adminLog('PDFs: ' + (data.pdfs || []).length + ' files');
+  } catch(e) {
+    el.textContent = '✗ Failed: ' + e.message;
+    adminLog('List PDFs FAILED: ' + e.message);
+  }
+}
+
+async function adminChallanStats() {
+  const el = document.getElementById('admin-challan-result');
+  el.classList.remove('hidden');
+  el.textContent = 'Loading...';
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/calculator/stats`, {}, 8000);
+    const data = await res.json();
+    el.textContent = JSON.stringify(data, null, 2);
+    adminLog('Challan stats loaded');
+  } catch(e) {
+    el.textContent = '✗ Challan server unreachable\n' + e.message;
+    adminLog('Challan stats FAILED: ' + e.message);
+  }
+}
+
+async function adminChallanReload() {
+  const el = document.getElementById('admin-challan-result');
+  el.classList.remove('hidden');
+  el.textContent = 'Reloading...';
+  try {
+    const res = await fetchWithTimeout(`${BASE_URL}/api/admin/reload`, { method: 'POST' }, 15000);
+    const data = await res.json();
+    el.textContent = JSON.stringify(data, null, 2);
+    adminLog('Challan data reloaded');
+  } catch(e) {
+    el.textContent = '✗ Reload failed\n' + e.message;
+    adminLog('Challan reload FAILED: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SHARED CHALLAN RESULT RENDERER
+// ═══════════════════════════════════════════════════════════
+function renderChallanResult(d, totalEl, detailsEl, isOffline) {
+  const badge = isOffline
+    ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase"><span class="material-symbols-outlined text-[12px]">cloud_off</span>Offline</span>'
+    : '';
+
+  totalEl.textContent = d.total_fine ? '₹' + Number(d.total_fine).toLocaleString() : '₹0';
+  let html = badge ? '<div class="mb-3">' + badge + '</div>' : '';
+
+  if (d.violations && d.violations.length) {
+    d.violations.forEach(v => {
+      html += `<div class="flex items-start gap-3 py-2 border-b border-white/5">`;
+      html += `<div class="w-8 h-8 rounded-full bg-red-500/15 text-red-400 flex items-center justify-center shrink-0 mt-0.5"><span class="material-symbols-outlined text-[16px]">warning</span></div>`;
+      html += `<div class="flex-1"><p class="text-sm font-semibold text-on-surface">${v.offense}</p>`;
+      html += `<p class="text-xs text-on-surface-variant">Section: ${v.section} • Fine: ₹${Number(v.fine_amount).toLocaleString()}</p>`;
+      if (v.imprisonment) html += `<p class="text-xs text-error">⚠️ Imprisonment: ${v.imprisonment}</p>`;
+      if (v.description) html += `<p class="text-xs text-on-surface-variant mt-1">${v.description}</p>`;
+      html += `</div></div>`;
+    });
+  }
+  if (d.message) html += `<p class="text-xs text-on-surface-variant pt-2">${d.message}</p>`;
+  if (!d.found) html += `<p class="text-sm text-secondary">No matching challan found. Try different keywords.</p>`;
+  detailsEl.innerHTML = html || JSON.stringify(d, null, 2);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  OFFLINE MODE (Settings Toggle)
+// ═══════════════════════════════════════════════════════════
+function handleOfflineToggle(checkbox) {
+  if (!window.AndroidBridge) {
+    alert('Offline mode is only available in the Android app.');
+    checkbox.checked = false;
+    return;
+  }
+
+  // Show downloading on both pages
+  const dl1 = document.getElementById('offline-downloading');
+  const dl2 = document.getElementById('prof-offline-downloading');
+
+  if (checkbox.checked) {
+    if (dl1) dl1.classList.remove('hidden');
+    if (dl2) dl2.classList.remove('hidden');
+    checkbox.disabled = true;
+    window.AndroidBridge.downloadOfflineData();
+
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      const enabled = window.AndroidBridge.isOfflineModeEnabled();
+      if (enabled || attempts > 30) {
+        clearInterval(poll);
+        if (dl1) dl1.classList.add('hidden');
+        if (dl2) dl2.classList.add('hidden');
+        checkbox.disabled = false;
+        updateOfflineUI(enabled);
+        // Sync both toggles
+        const t1 = document.getElementById('offline-toggle');
+        const t2 = document.getElementById('prof-offline-toggle');
+        if (t1) t1.checked = enabled;
+        if (t2) t2.checked = enabled;
+      }
+    }, 1000);
+  } else {
+    window.AndroidBridge.deleteOfflineData();
+    updateOfflineUI(false);
+    // Sync both toggles
+    const t1 = document.getElementById('offline-toggle');
+    const t2 = document.getElementById('prof-offline-toggle');
+    if (t1) t1.checked = false;
+    if (t2) t2.checked = false;
+  }
+}
+
+function updateOfflineUI(enabled) {
+  // Update both Settings page and Profile page offline elements
+  const prefixes = ['offline', 'prof-offline'];
+  prefixes.forEach(prefix => {
+    const icon = document.getElementById(prefix + '-icon');
+    const label = document.getElementById(prefix + '-label');
+    const status = document.getElementById(prefix + '-status');
+    const syncInfo = document.getElementById(prefix + '-sync-info');
+    const countEl = document.getElementById(prefix + '-count');
+    const lastSyncEl = document.getElementById(prefix + '-last-sync');
+
+    if (!icon) return; // element doesn't exist on this page variant
+
+    if (enabled && window.AndroidBridge) {
+      icon.textContent = 'cloud_done';
+      icon.className = 'material-symbols-outlined text-emerald-400 text-[22px]';
+      if (label) label.textContent = 'Offline Data Ready';
+      if (status) status.textContent = 'Data saved on device';
+      if (syncInfo) syncInfo.classList.remove('hidden');
+      if (countEl) countEl.textContent = window.AndroidBridge.getDbCount() + ' challans';
+      if (lastSyncEl) {
+        const lastSync = window.AndroidBridge.getLastSyncTime();
+        lastSyncEl.textContent = lastSync ? new Date(lastSync).toLocaleString() : '—';
+      }
+    } else {
+      icon.textContent = 'cloud_off';
+      icon.className = 'material-symbols-outlined text-primary text-[22px]';
+      if (label) label.textContent = 'Offline Data';
+      if (status) status.textContent = 'Not downloaded';
+      if (syncInfo) syncInfo.classList.add('hidden');
+    }
+  });
+}
+
+function initOfflineToggle() {
+  if (!window.AndroidBridge) return;
+  const enabled = window.AndroidBridge.isOfflineModeEnabled();
+  // Init both toggles
+  const t1 = document.getElementById('offline-toggle');
+  const t2 = document.getElementById('prof-offline-toggle');
+  if (t1) t1.checked = enabled;
+  if (t2) t2.checked = enabled;
+  updateOfflineUI(enabled);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SUPABASE AUTH GATE (Email/Password + OTP)
+// ═══════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://uzvywflybfafameoqwhp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6dnl3Zmx5YmZhZmFtZW9xd2hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjExNTgsImV4cCI6MjA5NTUzNzE1OH0.ECfi6BHSzNNNtCNMymDKel5Cma8x0X5fiVXb_QpMYcM';
+
+let supabaseClient;
+try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+catch(e) { console.error('Supabase init error:', e); }
+
+let gateOtpEmail = '';
+
+function dismissAuthGate() {
+  const gate = document.getElementById('auth-gate');
+  if (gate) { gate.classList.add('hidden-gate'); setTimeout(() => gate.remove(), 600); }
+}
+
+function gateShowError(msg) {
+  document.getElementById('gate-success').style.display = 'none';
+  const el = document.getElementById('gate-error');
+  document.getElementById('gate-error-text').textContent = msg;
+  el.style.display = 'block';
+}
+function gateShowSuccess(msg) {
+  document.getElementById('gate-error').style.display = 'none';
+  const el = document.getElementById('gate-success');
+  document.getElementById('gate-success-text').textContent = msg;
+  el.style.display = 'block';
+}
+function gateSetLoading(show) {
+  document.getElementById('gate-loading').style.display = show ? 'block' : 'none';
+  ['gate-btn-login','gate-btn-signup','gate-btn-otp','gate-btn-verify'].forEach(id => {
+    const b = document.getElementById(id); if (b) { b.disabled = show; b.style.opacity = show ? '0.5' : '1'; }
+  });
+}
+
+async function checkAuth() {
+  if (localStorage.getItem('roadlaw_authenticated') === 'true') { dismissAuthGate(); return; }
+  if (!supabaseClient) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) {
+      localStorage.setItem('roadlaw_authenticated', 'true');
+      localStorage.setItem('roadlaw_user_email', session.user.email || '');
+      dismissAuthGate();
+    }
+  } catch(e) { console.error('Auth check error:', e); }
+}
+
+async function gateLogin() {
+  if (!supabaseClient) { gateShowError('Auth service unavailable'); return; }
+  const email = document.getElementById('gate-email').value.trim();
+  const pw = document.getElementById('gate-password').value;
+  if (!email) { gateShowError('Enter your email'); return; }
+  if (!pw) { gateShowError('Enter your password'); return; }
+  gateSetLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pw });
+    if (error) { gateShowError(error.message); gateSetLoading(false); return; }
+    // onAuthStateChange will handle dismiss
+  } catch(e) { gateShowError('Login failed: ' + e.message); gateSetLoading(false); }
+}
+
+async function gateSignup() {
+  if (!supabaseClient) { gateShowError('Auth service unavailable'); return; }
+  const email = document.getElementById('gate-email').value.trim();
+  const pw = document.getElementById('gate-password').value;
+  if (!email) { gateShowError('Enter your email'); return; }
+  if (!pw || pw.length < 6) { gateShowError('Password must be at least 6 characters'); return; }
+  gateSetLoading(true);
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password: pw });
+    if (error) { gateShowError(error.message); gateSetLoading(false); return; }
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      gateShowError('Account already exists. Try logging in.');
+    } else {
+      gateShowSuccess('Account created! Check email to confirm, then log in.');
+    }
+  } catch(e) { gateShowError('Sign up failed: ' + e.message); }
+  gateSetLoading(false);
+}
+
+async function gateSendOTP() {
+  if (!supabaseClient) { gateShowError('Auth service unavailable'); return; }
+  const email = document.getElementById('gate-email').value.trim();
+  if (!email) { gateShowError('Enter email first'); return; }
+  gateSetLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.signInWithOtp({ email });
+    if (error) { gateShowError(error.message); gateSetLoading(false); return; }
+    gateOtpEmail = email;
+    gateShowSuccess('OTP sent to ' + email + '. Check inbox!');
+    document.getElementById('gate-otp-section').style.display = 'block';
+    document.getElementById('gate-pw-section').style.display = 'none';
+    document.getElementById('gate-btn-login').style.display = 'none';
+    document.getElementById('gate-btn-signup').style.display = 'none';
+    document.getElementById('gate-btn-otp').style.display = 'none';
+  } catch(e) { gateShowError('OTP failed: ' + e.message); }
+  gateSetLoading(false);
+}
+
+async function gateVerifyOTP() {
+  if (!supabaseClient) { gateShowError('Auth service unavailable'); return; }
+  const otp = document.getElementById('gate-otp').value.trim();
+  if (!otp || otp.length !== 6) { gateShowError('Enter the 6-digit OTP'); return; }
+  gateSetLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.verifyOtp({ email: gateOtpEmail, token: otp, type: 'email' });
+    if (error) { gateShowError(error.message); gateSetLoading(false); return; }
+    // onAuthStateChange will handle dismiss
+  } catch(e) { gateShowError('OTP failed: ' + e.message); gateSetLoading(false); }
+}
+
+if (supabaseClient) {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      localStorage.setItem('roadlaw_authenticated', 'true');
+      localStorage.setItem('roadlaw_user_email', session.user.email || '');
+      dismissAuthGate();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PROFILE PAGE LOGIC
+// ═══════════════════════════════════════════════════════════
+let profOtpEmail = '';
+let profCurrentUser = null;
+
+function openProfAuthModal() { document.getElementById('prof-auth-modal').classList.remove('hidden'); profClearMessages(); }
+function closeProfAuthModal() { document.getElementById('prof-auth-modal').classList.add('hidden'); profClearMessages(); }
+function profClearMessages() { document.getElementById('prof-modal-error').classList.add('hidden'); document.getElementById('prof-modal-success').classList.add('hidden'); }
+
+function profShowError(msg) {
+  profClearMessages();
+  const el = document.getElementById('prof-modal-error');
+  document.getElementById('prof-modal-error-text').textContent = msg;
+  el.classList.remove('hidden');
+}
+function profShowSuccess(msg) {
+  profClearMessages();
+  const el = document.getElementById('prof-modal-success');
+  document.getElementById('prof-modal-success-text').textContent = msg;
+  el.classList.remove('hidden');
+}
+function profSetLoading(show) {
+  const ld = document.getElementById('prof-modal-loading');
+  ['prof-btn-login','prof-btn-signup','prof-btn-otp','prof-btn-verify'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = show; b.style.opacity = show ? '0.5' : '1'; }
+  });
+  show ? ld.classList.remove('hidden') : ld.classList.add('hidden');
+}
+
+async function profLogin() {
+  if (!supabaseClient) { profShowError('Auth service unavailable'); return; }
+  const email = document.getElementById('prof-modal-email').value.trim();
+  const pw = document.getElementById('prof-modal-password').value;
+  if (!email) { profShowError('Enter your email'); return; }
+  if (!pw) { profShowError('Enter your password'); return; }
+  profSetLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password: pw });
+    if (error) { profShowError(error.message); profSetLoading(false); return; }
+    closeProfAuthModal();
+  } catch(e) { profShowError('Login failed: ' + e.message); }
+  profSetLoading(false);
+}
+
+async function profSignup() {
+  if (!supabaseClient) { profShowError('Auth service unavailable'); return; }
+  const email = document.getElementById('prof-modal-email').value.trim();
+  const pw = document.getElementById('prof-modal-password').value;
+  if (!email) { profShowError('Enter your email'); return; }
+  if (!pw || pw.length < 6) { profShowError('Password must be at least 6 characters'); return; }
+  profSetLoading(true);
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password: pw });
+    if (error) { profShowError(error.message); profSetLoading(false); return; }
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      profShowError('Account already exists. Try logging in.');
+    } else {
+      profShowSuccess('Account created! Check email to confirm, then log in.');
+    }
+  } catch(e) { profShowError('Sign up failed: ' + e.message); }
+  profSetLoading(false);
+}
+
+async function profSendOTP() {
+  if (!supabaseClient) { profShowError('Auth service unavailable'); return; }
+  const email = document.getElementById('prof-modal-email').value.trim();
+  if (!email) { profShowError('Enter email first'); return; }
+  profSetLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.signInWithOtp({ email });
+    if (error) { profShowError(error.message); profSetLoading(false); return; }
+    profOtpEmail = email;
+    profShowSuccess('OTP sent to ' + email + '. Check inbox!');
+    document.getElementById('prof-otp-section').classList.remove('hidden');
+    document.getElementById('prof-modal-pw-section').classList.add('hidden');
+    document.getElementById('prof-btn-login').classList.add('hidden');
+    document.getElementById('prof-btn-signup').classList.add('hidden');
+  } catch(e) { profShowError('OTP failed: ' + e.message); }
+  profSetLoading(false);
+}
+
+async function profVerifyOTP() {
+  if (!supabaseClient) { profShowError('Auth service unavailable'); return; }
+  const otp = document.getElementById('prof-modal-otp').value.trim();
+  if (!otp || otp.length !== 6) { profShowError('Enter the 6-digit OTP'); return; }
+  profSetLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.verifyOtp({ email: profOtpEmail, token: otp, type: 'email' });
+    if (error) { profShowError(error.message); profSetLoading(false); return; }
+    closeProfAuthModal();
+  } catch(e) { profShowError('OTP failed: ' + e.message); }
+  profSetLoading(false);
+}
+
+async function handleProfileAuth() {
+  if (profCurrentUser) {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) { alert('Sign out failed: ' + error.message); return; }
+    profCurrentUser = null;
+    localStorage.removeItem('roadlaw_authenticated');
+    localStorage.removeItem('roadlaw_user_email');
+    updateProfileUILoggedOut();
+  } else { openProfAuthModal(); }
+}
+
+function updateProfileUILoggedIn(user) {
+  profCurrentUser = user;
+  const nameEl = document.getElementById('prof-name');
+  const emailEl = document.getElementById('prof-email');
+  const authIcon = document.getElementById('prof-auth-icon');
+  const authTitle = document.getElementById('prof-auth-title');
+  const authSub = document.getElementById('prof-auth-subtitle');
+  const badge = document.getElementById('prof-verified-badge');
+  if (nameEl) nameEl.textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Driver';
+  if (emailEl) emailEl.textContent = user.email || '';
+  if (authIcon) authIcon.textContent = 'logout';
+  if (authTitle) authTitle.textContent = 'Sign Out';
+  if (authSub) authSub.textContent = user.email || 'Tap to sign out';
+  if (badge) badge.classList.remove('hidden');
+  // Also update the main header greeting
+  const headerGreeting = document.querySelector('#page-home h1.font-title-lg');
+  if (headerGreeting) headerGreeting.textContent = 'Hello, ' + (user.user_metadata?.full_name || user.email?.split('@')[0] || 'Driver');
+}
+
+function updateProfileUILoggedOut() {
+  profCurrentUser = null;
+  const nameEl = document.getElementById('prof-name');
+  const emailEl = document.getElementById('prof-email');
+  const authIcon = document.getElementById('prof-auth-icon');
+  const authTitle = document.getElementById('prof-auth-title');
+  const authSub = document.getElementById('prof-auth-subtitle');
+  const badge = document.getElementById('prof-verified-badge');
+  const avatarEl = document.getElementById('prof-avatar');
+  const fallbackEl = document.getElementById('prof-avatar-fallback');
+  if (nameEl) nameEl.textContent = 'Guest User';
+  if (emailEl) emailEl.textContent = 'Sign in to get started';
+  if (authIcon) authIcon.textContent = 'login';
+  if (authTitle) authTitle.textContent = 'Sign In';
+  if (authSub) authSub.textContent = 'Email or OTP login';
+  if (badge) badge.classList.add('hidden');
+  if (avatarEl) avatarEl.style.display = 'none';
+  if (fallbackEl) fallbackEl.style.display = 'flex';
+  // Reset modal
+  const otp = document.getElementById('prof-otp-section'); if (otp) otp.classList.add('hidden');
+  const pw = document.getElementById('prof-modal-pw-section'); if (pw) pw.classList.remove('hidden');
+  const bl = document.getElementById('prof-btn-login'); if (bl) bl.classList.remove('hidden');
+  const bs = document.getElementById('prof-btn-signup'); if (bs) bs.classList.remove('hidden');
+  // Reset header greeting
+  const headerGreeting = document.querySelector('#page-home h1.font-title-lg');
+  if (headerGreeting) headerGreeting.textContent = 'Hello, Driver';
+}
+
+// Hook into the existing onAuthStateChange to also update profile page
+if (supabaseClient) {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      updateProfileUILoggedIn(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      updateProfileUILoggedOut();
+    }
+  });
+}
+
+// On page load, check if user is already logged in and update profile
+async function initProfilePage() {
+  if (!supabaseClient) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) {
+      updateProfileUILoggedIn(session.user);
+    }
+  } catch(e) { console.warn('Profile init error:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LEGAL PDF SEARCH & DOWNLOAD
+// ═══════════════════════════════════════════════════════════
+
+let pdfSearchTimer = null;
+let currentPDFState = '';
+
+function debouncePDFSearch() {
+  clearTimeout(pdfSearchTimer);
+  pdfSearchTimer = setTimeout(() => searchPDFs(), 400);
+}
+
+function filterPDFState(state) {
+  currentPDFState = state;
+  // Update chip styling
+  document.querySelectorAll('.pdf-state-chip').forEach(chip => {
+    chip.className = 'pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-surface-container border border-white/5 text-on-surface-variant';
+  });
+  // Highlight active chip
+  if (!state) {
+    const allChip = document.getElementById('pdf-chip-all');
+    if (allChip) allChip.className = 'pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-primary text-on-primary';
+  } else {
+    document.querySelectorAll('.pdf-state-chip').forEach(chip => {
+      if (chip.textContent.trim() !== 'All States' && chip.onclick && chip.onclick.toString().includes(state)) {
+        chip.className = 'pdf-state-chip shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold transition-all active:scale-95 bg-primary text-on-primary';
+      }
+    });
+  }
+  searchPDFs();
+}
+
+async function searchPDFs() {
+  const query = (document.getElementById('pdf-search-input')?.value || '').trim();
+  const loading = document.getElementById('pdf-loading');
+  const results = document.getElementById('pdf-results');
+  const empty = document.getElementById('pdf-empty');
+  const countEl = document.getElementById('pdf-result-count');
+
+  loading.classList.remove('hidden');
+  results.innerHTML = '';
+  empty.classList.add('hidden');
+
+  try {
+    let url = `${BASE_URL}/api/legal-pdfs/search?q=${encodeURIComponent(query)}`;
+    if (currentPDFState) url += `&state_name=${encodeURIComponent(currentPDFState)}`;
+
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    loading.classList.add('hidden');
+
+    if (!data.success || !data.data.pdfs || data.data.pdfs.length === 0) {
+      empty.classList.remove('hidden');
+      countEl.textContent = '0 documents found';
+      return;
+    }
+
+    const pdfs = data.data.pdfs;
+    countEl.textContent = `${pdfs.length} document${pdfs.length > 1 ? 's' : ''} found`;
+
+    pdfs.forEach(pdf => {
+      const card = document.createElement('div');
+      card.className = 'glass-panel rounded-xl p-4 flex items-center gap-4 hover:bg-white/5 transition-colors border border-white/5';
+
+      const sizeDisplay = !pdf.file_size_bytes ? "PDF Document" : (pdf.file_size_bytes > 1048576
+        ? `${(pdf.file_size_bytes / 1048576).toFixed(1)} MB`
+        : `${(pdf.file_size_bytes / 1024).toFixed(1)} KB`);
+
+      const dateStr = pdf.created_at ? new Date(pdf.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+      card.innerHTML = `
+        <div class="w-12 h-12 rounded-xl bg-error/10 flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-error text-[24px]">picture_as_pdf</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-label-lg text-label-lg text-on-surface truncate">${pdf.display_name || pdf.filename}</div>
+          <div class="flex items-center gap-2 mt-1 flex-wrap">
+            <span class="inline-flex items-center gap-1 bg-surface-container-highest px-2 py-0.5 rounded-full">
+              <span class="material-symbols-outlined text-[12px] text-primary">location_on</span>
+              <span class="font-label-sm text-[10px] text-on-surface-variant">${pdf.state_name || 'ALL'}</span>
+            </span>
+            <span class="font-label-sm text-[10px] text-on-surface-variant/60">${sizeDisplay}</span>
+            ${dateStr ? `<span class="font-label-sm text-[10px] text-on-surface-variant/40">${dateStr}</span>` : ''}
+          </div>
+        </div>
+        <button onclick="downloadPDF('${pdf.file_url}', '${(pdf.display_name || pdf.filename).replace(/'/g, "\\'")}')" class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 hover:bg-primary/20 active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-primary text-[20px]">download</span>
+        </button>
+      `;
+      results.appendChild(card);
+    });
+
+  } catch(e) {
+    loading.classList.add('hidden');
+    console.error('PDF search error:', e);
+    countEl.textContent = 'Error loading documents';
+    empty.classList.remove('hidden');
+  }
+}
+
+function downloadPDF(url, name) {
+  // Save to localStorage for Profile page
+  let downloaded = JSON.parse(localStorage.getItem('downloaded_pdfs') || '[]');
+  if (!downloaded.some(p => p.url === url)) {
+    downloaded.push({ url, name, date: new Date().toISOString() });
+    localStorage.setItem('downloaded_pdfs', JSON.stringify(downloaded));
+    renderDownloadedPDFs();
+  }
+
+  // For Android WebView, try native bridge first
+  if (window.AndroidBridge && window.AndroidBridge.downloadFile) {
+    window.AndroidBridge.downloadFile(url, name);
+    return;
+  }
+  // Fallback: open in new tab
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name || 'document.pdf';
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function renderDownloadedPDFs() {
+  const list = document.getElementById('prof-downloaded-pdfs-list');
+  const empty = document.getElementById('prof-downloaded-pdfs-empty');
+  if (!list || !empty) return;
+
+  let downloaded = JSON.parse(localStorage.getItem('downloaded_pdfs') || '[]');
+  
+  if (downloaded.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  list.innerHTML = downloaded.map(pdf => {
+    const dateStr = new Date(pdf.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    return `
+      <div onclick="downloadPDF('${pdf.url}', '${pdf.name.replace(/'/g, "\\'")}')" class="flex items-center justify-between p-3 rounded-lg bg-surface-container/60 border border-white/5 cursor-pointer hover:bg-surface-container-high transition-colors active:scale-95">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-error text-[20px]">picture_as_pdf</span>
+          </div>
+          <div class="min-w-0">
+            <p class="font-label-lg text-[14px] text-on-surface truncate">${pdf.name}</p>
+            <p class="font-label-sm text-[11px] text-on-surface-variant">Downloaded: ${dateStr}</p>
+          </div>
+        </div>
+        <button class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0 text-primary transition-colors">
+          <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Auto-load PDFs when Legal Docs page opens
+function initLegalPDFs() {
+  searchPDFs();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Splash Screen Logic ──
+  const splash = document.getElementById('app-splash');
+  const authGate = document.getElementById('auth-gate');
+  setTimeout(() => {
+    if (splash) {
+      splash.classList.add('splash-hide');
+      setTimeout(() => splash.remove(), 700);
+    }
+    // Show auth gate after splash finishes
+    if (authGate) authGate.style.display = 'flex';
+    checkAuth();
+  }, 2200);
+
+  detectLocation();
+  checkServerStatus();
+  const adminUrl = document.getElementById('admin-server-url');
+  if (adminUrl) adminUrl.value = BASE_URL;
+  setTimeout(initOfflineToggle, 3000);
+  setTimeout(initProfilePage, 3200);
+  setTimeout(initLegalPDFs, 3400);
+
+  // ── Profile Button (Android WebView-safe) ──
+  const profBtn = document.getElementById('btn-profile-avatar');
+  if (profBtn) {
+    profBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      switchPage('page-profile');
+    });
+    profBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      switchPage('page-profile');
+    });
+  }
+
+});
+</script>
+</body></html>

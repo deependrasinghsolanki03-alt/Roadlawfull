@@ -1,0 +1,576 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>DriveLegal - Profile &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#dae2fd",
+                        "on-secondary-fixed": "#261a00",
+                        "on-tertiary-fixed": "#400010",
+                        "inverse-surface": "#dae2fd",
+                        "secondary": "#ffc640",
+                        "surface": "#0b1326",
+                        "on-primary-fixed": "#001c39",
+                        "on-surface-variant": "#c1c7d3",
+                        "surface-tint": "#a4c9ff",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#f9bd22",
+                        "on-surface": "#dae2fd",
+                        "secondary-fixed": "#ffdf9f",
+                        "surface-variant": "#2d3449",
+                        "surface-container-high": "#222a3d",
+                        "on-primary-fixed-variant": "#004883",
+                        "surface-bright": "#31394d",
+                        "on-primary": "#00315d",
+                        "surface-container-low": "#131b2e",
+                        "primary-container": "#60a5fa",
+                        "tertiary-fixed": "#ffdadc",
+                        "on-tertiary-container": "#750626",
+                        "inverse-on-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb2b9",
+                        "on-tertiary-fixed-variant": "#891933",
+                        "on-primary-container": "#003a6b",
+                        "error-container": "#93000a",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#e3aa00",
+                        "primary": "#a4c9ff",
+                        "on-secondary-container": "#5a4100",
+                        "primary-fixed": "#d4e3ff",
+                        "on-secondary-fixed-variant": "#5c4300",
+                        "on-secondary": "#402d00",
+                        "tertiary": "#ffb2b9",
+                        "inverse-primary": "#0060ac",
+                        "tertiary-container": "#ff778a",
+                        "on-tertiary": "#67001f",
+                        "background": "#0b1326",
+                        "surface-container-lowest": "#060e20",
+                        "on-error": "#690005",
+                        "outline": "#8b919d",
+                        "surface-container-highest": "#2d3449",
+                        "surface-container": "#171f33",
+                        "outline-variant": "#414751",
+                        "surface-dim": "#0b1326"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "40px",
+                        "container-max": "1200px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "title-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "title-lg": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .glass-card {
+            background: rgba(23, 31, 51, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .amber-glow {
+            box-shadow: 0 0 24px rgba(255, 198, 64, 0.15);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface/80 docked full-width top-0 sticky backdrop-blur-xl border-b border-white/5 shadow-sm flex justify-between items-center px-margin-mobile h-16 w-full z-50">
+<div class="flex items-center gap-3">
+<a href="../drivelegal_dashboard_home/code.html" class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-white/10 flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant">arrow_back</span>
+</a>
+</div>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-extrabold text-secondary dark:text-secondary">DriveLegal</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-on-surface-variant">notifications</span>
+</button>
+</header>
+<main class="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto py-6 space-y-8">
+<!-- Profile Card -->
+<section class="glass-card rounded-[2rem] p-6 amber-glow relative overflow-hidden flex flex-col items-center text-center">
+<div class="absolute inset-0 bg-gradient-to-b from-secondary/10 to-transparent pointer-events-none"></div>
+<div class="relative w-24 h-24 mb-4">
+<img id="profile-avatar" alt="Profile Picture" class="w-full h-full rounded-full object-cover border-4 border-surface" onerror="this.style.display='none'; document.getElementById('profile-avatar-fallback').style.display='flex';" src="">
+<div id="profile-avatar-fallback" class="w-full h-full rounded-full bg-surface-container-highest border-4 border-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-on-surface-variant">person</span>
+</div>
+<div id="profile-verified-badge" class="absolute bottom-0 right-0 bg-secondary w-8 h-8 rounded-full flex items-center justify-center border-4 border-surface shadow-lg hidden">
+<span class="material-symbols-outlined text-on-secondary-container text-sm" style="font-variation-settings: &quot;FILL&quot; 1;">verified</span>
+</div>
+</div>
+<h2 id="profile-name" class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-1">Guest User</h2>
+<p id="profile-email" class="font-body-md text-body-md text-on-surface-variant mb-4">Sign in to get started</p>
+<div class="bg-surface-container-high rounded-full px-4 py-2 flex items-center gap-2 border border-white/5">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: &quot;FILL&quot; 1;">local_fire_department</span>
+<span class="font-label-lg text-label-lg text-secondary">7 Day Safe Driving Streak</span>
+</div>
+</section>
+<!-- Settings List -->
+<section class="space-y-4">
+<h3 class="font-title-lg text-title-lg text-on-surface px-2">Settings</h3>
+<div class="glass-card rounded-2xl overflow-hidden divide-y divide-white/5">
+<!-- Account / Login / Logout -->
+<button id="auth-button" onclick="handleAuthClick()" class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+<span id="auth-icon" class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">login</span>
+</div>
+<div class="flex-1">
+<div id="auth-title" class="font-title-lg text-[16px] leading-tight text-on-surface">Sign In</div>
+<div id="auth-subtitle" class="font-body-md text-[13px] text-on-surface-variant">Email or OTP login</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<!-- Notifications -->
+<button class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">notifications_active</span>
+</div>
+<div class="flex-1">
+<div class="font-title-lg text-[16px] leading-tight text-on-surface">Notifications</div>
+<div class="font-body-md text-[13px] text-on-surface-variant">Alerts, summaries</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<!-- Voice Assistant -->
+<button class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">mic</span>
+</div>
+<div class="flex-1">
+<div class="font-title-lg text-[16px] leading-tight text-on-surface">Voice Assistant</div>
+<div class="font-body-md text-[13px] text-on-surface-variant">Hands-free controls</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+<!-- Language -->
+<button class="w-full flex items-center p-4 hover:bg-white/5 transition-colors text-left group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mr-4 group-hover:bg-secondary/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary transition-colors">language</span>
+</div>
+<div class="flex-1">
+<div class="font-title-lg text-[16px] leading-tight text-on-surface">Language</div>
+<div class="font-body-md text-[13px] text-on-surface-variant">English (US)</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Offline Downloads -->
+<section class="space-y-4">
+<h3 class="font-title-lg text-title-lg text-on-surface px-2">Offline Rule Packs</h3>
+<div class="glass-card rounded-2xl p-4 space-y-4">
+<!-- Pack 1 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">map</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface">MP Rules</div>
+<div class="font-body-md text-[12px] text-on-surface-variant">12.4 MB</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+<span class="font-label-sm text-label-sm text-secondary">Downloaded</span>
+</div>
+</div>
+<!-- Pack 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">map</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface">Delhi Rules</div>
+<div class="font-body-md text-[12px] text-on-surface-variant">18.1 MB</div>
+</div>
+</div>
+<div class="w-24">
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/3 rounded-full"></div>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant text-right mt-1">66%</div>
+</div>
+</div>
+<!-- Pack 3 -->
+<div class="flex items-center justify-between opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">map</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-surface">Maharashtra Rules</div>
+<div class="font-body-md text-[12px] text-on-surface-variant">22.0 MB</div>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-on-surface text-[18px]">download</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Sync Status & Emergency Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Sync Card -->
+<section class="glass-card rounded-2xl p-4 flex flex-col justify-between min-h-[120px]">
+<div class="flex justify-between items-start mb-2">
+<div class="font-label-lg text-label-lg text-on-surface-variant">Rule Updates</div>
+<div class="flex items-center gap-1 bg-surface-container-highest px-2 py-1 rounded-full">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-[10px] text-on-surface uppercase tracking-wider">Syncing</span>
+</div>
+</div>
+<div class="mt-auto">
+<div class="font-title-lg text-title-lg text-on-surface">Up to date</div>
+<div class="font-body-md text-[13px] text-on-surface-variant">Last Synced: 2 mins ago</div>
+</div>
+</section>
+<!-- Emergency Card -->
+<section class="glass-card rounded-2xl p-4 border-error/20 bg-error/5 min-h-[120px] relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-error/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+<div class="font-title-lg text-title-lg text-error mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined">emergency</span>
+                    Emergency
+                </div>
+<div class="flex gap-2">
+<button class="flex-1 bg-error-container hover:bg-error-container/80 transition-colors py-2 px-3 rounded-xl flex flex-col items-center justify-center gap-1">
+<span class="material-symbols-outlined text-on-error-container text-[20px]">local_hospital</span>
+<span class="font-label-sm text-[10px] text-on-error-container">Ambulance</span>
+</button>
+<button class="flex-1 bg-error-container hover:bg-error-container/80 transition-colors py-2 px-3 rounded-xl flex flex-col items-center justify-center gap-1">
+<span class="material-symbols-outlined text-on-error-container text-[20px]">local_police</span>
+<span class="font-label-sm text-[10px] text-on-error-container">Police</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+
+<!-- ═══════════════════ LOGIN/SIGNUP MODAL ═══════════════════ -->
+<div id="auth-modal" class="fixed inset-0 z-[100] hidden">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+  <div class="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-[2rem] border-t border-white/10" style="background: rgba(23, 31, 51, 0.97); backdrop-filter: blur(24px);">
+    <div class="p-6 pb-8 max-w-md mx-auto">
+      <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mx-auto mb-3">
+          <span class="material-symbols-outlined text-[28px] text-surface" style="font-variation-settings: 'FILL' 1;">shield</span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Welcome</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-1">Sign in or create an account</p>
+      </div>
+      <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-error-container/20 border border-error/20">
+        <p id="auth-error-text" class="font-body-md text-[13px] text-error flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">error</span><span></span></p>
+      </div>
+      <div id="auth-success" class="hidden mb-4 p-3 rounded-xl bg-primary/10 border border-primary/20">
+        <p id="auth-success-text" class="font-body-md text-[13px] text-primary flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">check_circle</span><span></span></p>
+      </div>
+      <div class="space-y-3 mb-4">
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">mail</span>
+          <input id="auth-email" type="email" placeholder="Email address" class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-container-highest border border-white/10 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all">
+        </div>
+        <div id="password-section" class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">lock</span>
+          <input id="auth-password" type="password" placeholder="Password (min 6 characters)" class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-container-highest border border-white/10 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all">
+        </div>
+      </div>
+      <div class="space-y-2.5 mb-4">
+        <button id="btn-login" onclick="loginWithPassword()" class="w-full py-3.5 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-[18px]">login</span>Login</button>
+        <button id="btn-signup" onclick="signUpWithPassword()" class="w-full py-3.5 rounded-xl bg-surface-container-highest border border-white/10 text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-white/10 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-[18px]">person_add</span>Create Account</button>
+      </div>
+      <div class="flex items-center gap-3 my-5"><div class="flex-1 h-px bg-white/10"></div><span class="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-wider">or use OTP</span><div class="flex-1 h-px bg-white/10"></div></div>
+      <button id="btn-send-otp" onclick="sendOTP()" class="w-full py-3.5 rounded-xl bg-secondary/15 border border-secondary/30 text-secondary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-secondary/25 active:scale-[0.98] transition-all mb-3"><span class="material-symbols-outlined text-[18px]">passkey</span>Send OTP to Email</button>
+      <div id="otp-verify-section" class="hidden space-y-3">
+        <div class="relative"><span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">pin</span><input id="auth-otp" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP" class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-surface-container-highest border border-secondary/30 text-on-surface placeholder:text-on-surface-variant/50 font-body-md text-[15px] text-center tracking-[0.5em] font-bold focus:outline-none focus:border-secondary/60 focus:ring-1 focus:ring-secondary/30 transition-all"></div>
+        <button id="btn-verify-otp" onclick="verifyOTP()" class="w-full py-3.5 rounded-xl bg-secondary text-on-secondary-container font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-secondary/90 active:scale-[0.98] transition-all font-bold"><span class="material-symbols-outlined text-[18px]">verified</span>Verify OTP</button>
+      </div>
+      <div id="auth-loading" class="hidden flex justify-center py-4"><div class="w-6 h-6 border-white/15 border-t-secondary rounded-full animate-spin" style="border-width: 3px; border-style: solid; border-color: rgba(255,255,255,0.15); border-top-color: #ffc640;"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Bottom Nav Bar -->
+<div class="fixed bottom-5 left-margin-mobile right-margin-mobile z-50 md:left-1/2 md:-translate-x-1/2 md:w-[480px]">
+    <div class="bg-surface-container/85 backdrop-blur-xl border border-white/10 rounded-full py-2 px-5 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <!-- Home -->
+        <a href="../drivelegal_dashboard_home/code.html" class="flex flex-col items-center gap-0.5 py-1 px-3 text-on-surface-variant/80 hover:text-primary transition-all hover:scale-105 active:scale-95 duration-200 select-none">
+            <span class="material-symbols-outlined text-[24px]">home</span>
+            <span class="font-label-sm text-[10px] uppercase tracking-wider font-semibold">Home</span>
+        </a>
+        <!-- Legal -->
+        <a href="../legal_search/code.html" class="flex flex-col items-center gap-0.5 py-1 px-3 text-on-surface-variant/80 hover:text-primary transition-all hover:scale-105 active:scale-95 duration-200 select-none">
+            <span class="material-symbols-outlined text-[24px]">gavel</span>
+            <span class="font-label-sm text-[10px] uppercase tracking-wider font-semibold">Legal</span>
+        </a>
+        <!-- Challans -->
+        <a href="../challan_ai_estimate_city_refined/code.html" class="flex flex-col items-center gap-0.5 py-1 px-3 text-on-surface-variant/80 hover:text-primary transition-all hover:scale-105 active:scale-95 duration-200 select-none">
+            <span class="material-symbols-outlined text-[24px]">receipt_long</span>
+            <span class="font-label-sm text-[10px] uppercase tracking-wider font-semibold">Challans</span>
+        </a>
+        <!-- AI Chat -->
+        <a href="../drivelegal_ai_assistant_refined_nav/code.html" class="flex flex-col items-center gap-0.5 py-1 px-3 text-primary transition-all hover:scale-105 active:scale-95 duration-200 select-none">
+            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+            <span class="font-label-sm text-[10px] uppercase tracking-wider font-bold">AI Chat</span>
+        </a>
+    </div>
+</div>
+<!-- Desktop SideNav (Hidden on Mobile, placeholder structure based on rules) -->
+<nav class="hidden md:flex fixed left-0 top-16 bottom-0 w-24 flex-col items-center py-8 gap-8 border-r border-white/5 bg-surface-container-lowest z-40">
+<!-- Desktop Nav Items would mirror mobile here in a real implementation -->
+</nav>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  SUPABASE INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://uzvywflybfafameoqwhp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_3SdT1mosK6TFKZqDxRiIYg_I-Qpx8mg';
+
+let supabaseClient;
+try { supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+catch(e) { console.error('Supabase init failed:', e); }
+
+let currentUser = null;
+let otpEmail = '';
+
+// ═══════════════════════════════════════════════════════════
+//  MODAL MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); clearMessages(); }
+function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); clearMessages(); }
+function clearMessages() { document.getElementById('auth-error').classList.add('hidden'); document.getElementById('auth-success').classList.add('hidden'); }
+
+function showError(msg) {
+  clearMessages();
+  const el = document.getElementById('auth-error');
+  el.querySelector('span:last-child').textContent = msg;
+  el.classList.remove('hidden');
+}
+function showSuccess(msg) {
+  clearMessages();
+  const el = document.getElementById('auth-success');
+  el.querySelector('span:last-child').textContent = msg;
+  el.classList.remove('hidden');
+}
+function setLoading(show) {
+  const ld = document.getElementById('auth-loading');
+  ['btn-login','btn-signup','btn-send-otp','btn-verify-otp'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = show; b.style.opacity = show ? '0.5' : '1'; }
+  });
+  show ? ld.classList.remove('hidden') : ld.classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUTH ACTIONS
+// ═══════════════════════════════════════════════════════════
+async function signUpWithPassword() {
+  if (!supabaseClient) { showError('Auth service unavailable'); return; }
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email) { showError('Please enter your email'); return; }
+  if (!password || password.length < 6) { showError('Password must be at least 6 characters'); return; }
+  setLoading(true);
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) { showError(error.message); setLoading(false); return; }
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      showError('Account already exists. Try logging in.');
+    } else {
+      showSuccess('Account created! Check email to confirm, then log in.');
+    }
+  } catch(e) { showError('Sign up failed: ' + e.message); }
+  setLoading(false);
+}
+
+async function loginWithPassword() {
+  if (!supabaseClient) { showError('Auth service unavailable'); return; }
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if (!email) { showError('Please enter your email'); return; }
+  if (!password) { showError('Please enter your password'); return; }
+  setLoading(true);
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { showError(error.message); setLoading(false); return; }
+    closeAuthModal();
+  } catch(e) { showError('Login failed: ' + e.message); }
+  setLoading(false);
+}
+
+async function sendOTP() {
+  if (!supabaseClient) { showError('Auth service unavailable'); return; }
+  const email = document.getElementById('auth-email').value.trim();
+  if (!email) { showError('Enter email first'); return; }
+  setLoading(true);
+  try {
+    const { error } = await supabaseClient.auth.signInWithOtp({ email });
+    if (error) { showError(error.message); setLoading(false); return; }
+    otpEmail = email;
+    showSuccess('OTP sent to ' + email + '. Check inbox!');
+    document.getElementById('otp-verify-section').classList.remove('hidden');
+    document.getElementById('password-section').classList.add('hidden');
+    document.getElementById('btn-login').classList.add('hidden');
+    document.getElementById('btn-signup').classList.add('hidden');
+  } catch(e) { showError('OTP failed: ' + e.message); }
+  setLoading(false);
+}
+
+async function verifyOTP() {
+  if (!supabaseClient) { showError('Auth service unavailable'); return; }
+  const otp = document.getElementById('auth-otp').value.trim();
+  if (!otp || otp.length !== 6) { showError('Enter the 6-digit OTP'); return; }
+  setLoading(true);
+  try {
+    const { data, error } = await supabaseClient.auth.verifyOtp({ email: otpEmail, token: otp, type: 'email' });
+    if (error) { showError(error.message); setLoading(false); return; }
+    closeAuthModal();
+  } catch(e) { showError('OTP verify failed: ' + e.message); }
+  setLoading(false);
+}
+
+async function handleAuthClick() {
+  if (currentUser) {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) alert('Sign out failed: ' + error.message);
+  } else { openAuthModal(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUTH STATE
+// ═══════════════════════════════════════════════════════════
+async function checkAuthState() {
+  if (!supabaseClient) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) {
+      currentUser = session.user;
+      await loadProfile(session.user);
+      updateUILoggedIn(session.user);
+    } else { currentUser = null; updateUILoggedOut(); }
+  } catch(e) { updateUILoggedOut(); }
+}
+
+if (supabaseClient) {
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      currentUser = session.user;
+      await loadProfile(session.user);
+      updateUILoggedIn(session.user);
+    } else if (event === 'SIGNED_OUT') { currentUser = null; updateUILoggedOut(); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PROFILE
+// ═══════════════════════════════════════════════════════════
+async function loadProfile(user) {
+  if (!supabaseClient) return;
+  try {
+    const { data: profile, error } = await supabaseClient.from('profiles').select('full_name, email, avatar_url').eq('id', user.id).single();
+    if (!error && profile) { updateProfileCard(profile.full_name || 'New User', profile.email || user.email, profile.avatar_url); return; }
+  } catch(e) { console.warn('Profile fetch failed:', e); }
+  updateProfileCard(user.user_metadata?.full_name || 'New User', user.email, null);
+}
+
+function updateProfileCard(name, email, avatarUrl) {
+  const nameEl = document.getElementById('profile-name');
+  const emailEl = document.getElementById('profile-email');
+  const avatarEl = document.getElementById('profile-avatar');
+  const fallbackEl = document.getElementById('profile-avatar-fallback');
+  const badgeEl = document.getElementById('profile-verified-badge');
+  if (nameEl) nameEl.textContent = name || 'Guest User';
+  if (emailEl) emailEl.textContent = email || 'Sign in to get started';
+  if (avatarUrl && avatarEl) { avatarEl.src = avatarUrl; avatarEl.style.display = 'block'; if (fallbackEl) fallbackEl.style.display = 'none'; }
+  else { if (avatarEl) avatarEl.style.display = 'none'; if (fallbackEl) fallbackEl.style.display = 'flex'; }
+  if (badgeEl) badgeEl.classList.remove('hidden');
+}
+
+function updateUILoggedIn(user) {
+  const authIcon = document.getElementById('auth-icon');
+  const authTitle = document.getElementById('auth-title');
+  const authSubtitle = document.getElementById('auth-subtitle');
+  if (authIcon) authIcon.textContent = 'logout';
+  if (authTitle) authTitle.textContent = 'Sign Out';
+  if (authSubtitle) authSubtitle.textContent = user.email || 'Tap to sign out';
+}
+
+function updateUILoggedOut() {
+  const authIcon = document.getElementById('auth-icon');
+  const authTitle = document.getElementById('auth-title');
+  const authSubtitle = document.getElementById('auth-subtitle');
+  if (authIcon) authIcon.textContent = 'login';
+  if (authTitle) authTitle.textContent = 'Sign In';
+  if (authSubtitle) authSubtitle.textContent = 'Email or OTP login';
+  const nameEl = document.getElementById('profile-name');
+  const emailEl = document.getElementById('profile-email');
+  if (nameEl) nameEl.textContent = 'Guest User';
+  if (emailEl) emailEl.textContent = 'Sign in to get started';
+  const avatarEl = document.getElementById('profile-avatar');
+  const fallbackEl = document.getElementById('profile-avatar-fallback');
+  const badgeEl = document.getElementById('profile-verified-badge');
+  if (avatarEl) avatarEl.style.display = 'none';
+  if (fallbackEl) fallbackEl.style.display = 'flex';
+  if (badgeEl) badgeEl.classList.add('hidden');
+  // Reset modal
+  const otp = document.getElementById('otp-verify-section'); if (otp) otp.classList.add('hidden');
+  const pw = document.getElementById('password-section'); if (pw) pw.classList.remove('hidden');
+  const bl = document.getElementById('btn-login'); if (bl) bl.classList.remove('hidden');
+  const bs = document.getElementById('btn-signup'); if (bs) bs.classList.remove('hidden');
+}
+
+checkAuthState();
+</script>
+
+</body></html>
