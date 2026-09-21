@@ -56,7 +56,7 @@ PINECONE_INDEX_NAME = "roadlaw-legal"
 PINECONE_CLOUD = "aws"
 PINECONE_REGION = "us-east-1"
 EMBEDDING_DIMENSION = 768  # all-mpnet-base-v2 outputs 768-dim vectors
-LLM_MODEL = "llama-3.3-70b-versatile"
+LLM_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 TOP_K = 5
 RETRIEVAL_THRESHOLD = 1.2
 
