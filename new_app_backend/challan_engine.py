@@ -163,7 +163,7 @@ from langchain_groq import ChatGroq
 
 challan_llm = ChatGroq(
     groq_api_key=GROQ_API_KEY,
-    model_name="meta-llama/llama-4-scout-17b-16e-instruct",
+    model_name="qwen/qwen3.8-27b",
     temperature=0,
 )
 

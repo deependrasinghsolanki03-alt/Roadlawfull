@@ -1467,7 +1467,7 @@ Always prioritize laws for the user's state (${gpsState}) when answering traffic
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-      body: JSON.stringify({ model: 'meta-llama/llama-4-scout-17b-16e-instruct', messages })
+      body: JSON.stringify({ model: 'qwen/qwen3.8-27b', messages })
     });
     aiHideTyping();
     if (res.ok) {

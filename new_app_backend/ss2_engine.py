@@ -32,11 +32,13 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 if not PINECONE_API_KEY:
     raise ValueError("PINECONE_API_KEY not found in .env file")
 
+HF_API_KEY = os.getenv("HF_API_KEY", "")
+
 # ── LangChain imports ──
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.retrievers import BM25Retriever
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.embeddings import Embeddings
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.documents import Document
@@ -44,6 +46,24 @@ from langchain_core.documents import Document
 # ── Pinecone imports ──
 from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
+
+
+# ═══════════════════════════════════════════════════════════
+#  LIGHTWEIGHT EMBEDDING (FastEmbed — ONNX, no PyTorch)
+# ═══════════════════════════════════════════════════════════
+
+class FastEmbedEmbeddings(Embeddings):
+    """Lightweight embeddings using FastEmbed (ONNX Runtime, no PyTorch)."""
+    
+    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
+        from fastembed import TextEmbedding
+        self.model = TextEmbedding(model_name=model_name)
+    
+    def embed_documents(self, texts):
+        return [e.tolist() for e in self.model.embed(texts)]
+    
+    def embed_query(self, text):
+        return list(self.model.embed([text]))[0].tolist()
 
 
 # ═══════════════════════════════════════════════════════════
@@ -56,7 +76,7 @@ PINECONE_INDEX_NAME = "roadlaw-legal"
 PINECONE_CLOUD = "aws"
 PINECONE_REGION = "us-east-1"
 EMBEDDING_DIMENSION = 768  # all-mpnet-base-v2 outputs 768-dim vectors
-LLM_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+LLM_MODEL = "qwen/qwen3.8-27b"
 TOP_K = 5
 RETRIEVAL_THRESHOLD = 1.2
 
@@ -121,12 +141,10 @@ class RAGEngine:
         print("  ROADLAW RAG ENGINE v2 — Pinecone Cloud Edition")
         print("=" * 60)
 
-        # ── Embedding model ──
-        print("\n  Loading embedding model...")
-        self.embeddings = HuggingFaceEmbeddings(
+        # ── Embedding model (FastEmbed ONNX — lightweight, no PyTorch) ──
+        print("\n  Loading embedding model (FastEmbed ONNX)...")
+        self.embeddings = FastEmbedEmbeddings(
             model_name=EMBEDDING_MODEL,
-            model_kwargs={"device": "cpu"},
-            encode_kwargs={"normalize_embeddings": True},
         )
 
         # ── Pinecone vector store ──
