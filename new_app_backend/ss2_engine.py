@@ -53,10 +53,11 @@ from langchain_pinecone import PineconeVectorStore
 # ═══════════════════════════════════════════════════════════
 
 class FastEmbedEmbeddings(Embeddings):
-    """Lightweight embeddings using FastEmbed (ONNX Runtime, no PyTorch)."""
+    """Lightweight embeddings using FastEmbed (ONNX, no PyTorch needed)."""
     
-    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "BAAI/bge-base-en-v1.5"):
         from fastembed import TextEmbedding
+        print(f"  Loading FastEmbed model: {model_name}")
         self.model = TextEmbedding(model_name=model_name)
     
     def embed_documents(self, texts):
@@ -71,7 +72,7 @@ class FastEmbedEmbeddings(Embeddings):
 # ═══════════════════════════════════════════════════════════
 
 PDF_FOLDER = "./legal_pdfs"
-EMBEDDING_MODEL = "sentence-transformers/all-mpnet-base-v2"
+EMBEDDING_MODEL = "BAAI/bge-base-en-v1.5"
 PINECONE_INDEX_NAME = "roadlaw-legal"
 PINECONE_CLOUD = "aws"
 PINECONE_REGION = "us-east-1"
@@ -141,8 +142,8 @@ class RAGEngine:
         print("  ROADLAW RAG ENGINE v2 — Pinecone Cloud Edition")
         print("=" * 60)
 
-        # ── Embedding model (FastEmbed ONNX — lightweight, no PyTorch) ──
-        print("\n  Loading embedding model (FastEmbed ONNX)...")
+        # ── Embedding model (FastEmbed ONNX — no PyTorch needed) ──
+        print("\n  Loading embedding model (FastEmbed)...")
         self.embeddings = FastEmbedEmbeddings(
             model_name=EMBEDDING_MODEL,
         )
